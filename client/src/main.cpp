@@ -1,3 +1,5 @@
+#include "Protocol.h"
+#include "Network.h"
 #include <iostream>
 #include <unistd.h>
 #include <string.h>
@@ -31,17 +33,22 @@ int main() {
 
     char buffer[BUFFER_SIZE];
     while (true) {
-        // Создаем JSON сообщение
-        json message;
-        message["type"] = 0; // Пример типа сообщения
-        message["login"] = "user123";
-        message["password"] = "pass123";
         
-        // Преобразуем в строку
-        string json_str = message.dump();
+        //Формируем сообщение
+        Message1 mess_class;
+        mess_class.login = "ЛогинРу";
+        mess_class.pass = "пароль";
+
+        // создаем json и преобразуем сообщение
+        json mess_json;
+        mess_class.to_json(mess_json);
+
+        //json в строку
+        string mess_push = mess_json.dump();
+        
         
         // Отправляем
-        if (send(sockfd, json_str.c_str(), json_str.size(), 0) <= 0) {
+        if (send(sockfd, mess_push.c_str(), mess_push.size(), 0) <= 0) {
             cerr << "Отправить не удастся" << endl;
             break;
         }
@@ -54,21 +61,12 @@ int main() {
             break;
         }
 
-        try {
-            // Парсим JSON ответ
-            json response = json::parse(buffer);
-            cout << "Серверный ответ: " << response.dump(4) << endl;
-            
-            if (response.contains("type") && response["type"] == 1) {
-                if (response["success"] == true) {
-                    cout << "Аутентификация успешно!" << endl;
-                } else {
-                    cout << "Аутентификация не удалась!" << endl;
-                }
-            }
-        } catch (const exception& e) {
-            cerr << "Ошибка распаковки JSON: " << e.what() << endl;
-        }
+
+        // Полученый ответ передам на логику дальше
+        std::string response = buffer;
+        handle_incoming_message(response);
+
+
         break;
     }
 

@@ -1,3 +1,5 @@
+#include "Network.h"
+#include "Protocol.h"
 #include <iostream>
 #include <unistd.h>             //базовые функции для работы с системой Linux
 #include <string.h>             //библиотека для работы со строками C
@@ -56,23 +58,19 @@ int main() {
         }
 
         try {
-            // Парсим JSON запрос
-            json request = json::parse(buffer);
-            cout << "Полученный: " << request.dump(4) << endl;
+            // обработка запроса
+            string request = buffer;
+            handle_incoming_message(request);
 
-            // Обрабатываем запрос
-            json response;
-            if (request["type"] == 0) {
-                // Аутентификация
-                response["type"] = 1;
-                response["login"] = request["login"];
-                response["success"] = (request["password"] == "pass123");
-            }
-            // Добавить обработку других типов сообщений
-
+            
             // Отправляем ответ
-            string json_str = response.dump();
-            send(client_sock, json_str.c_str(), json_str.size(), 0);
+            Message3 mess_class;
+            mess_class.status_request = true;
+            json mess_json;
+            mess_class.to_json(mess_json);
+            string mess_push = mess_json.dump();
+   
+            send(client_sock, mess_push.c_str(), mess_push.size(), 0);
 
         } catch (const exception& e) {
             cerr << "Ошибка распаковки JSON: " << e.what() << endl;
