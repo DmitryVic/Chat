@@ -35,9 +35,10 @@ int main() {
     while (true) {
         
         //Формируем сообщение
-        Message1 mess_class;
-        mess_class.login = "ЛогинРу";
+        Message2 mess_class;
+        mess_class.login = "Log";
         mess_class.pass = "пароль";
+        mess_class.name = "Дмитрий";
 
         // создаем json и преобразуем сообщение
         json mess_json;

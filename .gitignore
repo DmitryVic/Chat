@@ -2,6 +2,7 @@
 build/
 .vscode/
 .vs/
+file/
 CMakeCache.txt
 CMakeFiles/
 *.cmake
