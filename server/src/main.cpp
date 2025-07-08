@@ -47,11 +47,12 @@ int main() {
         close(sockfd);
         return 1;
     }
-
+    int ii = 0;
     char buffer[BUFFER_SIZE];
     while (true) {
         memset(buffer, 0, BUFFER_SIZE);
         ssize_t bytes_received = recv(client_sock, buffer, BUFFER_SIZE - 1, 0);
+        cerr << "-------------------------------------------- Счетчик итераций :" << ++ii << " из 3" << endl;
         if (bytes_received <= 0) {
             cerr << "Ошибка в получении сообщения или закрыто соединение" << endl;
             break;
@@ -64,7 +65,7 @@ int main() {
 
             
             // Отправляем ответ
-            Message3 mess_class;
+            Message50 mess_class;
             mess_class.status_request = true;
             json mess_json;
             mess_class.to_json(mess_json);
@@ -80,7 +81,7 @@ int main() {
             string error_str = error_response.dump();
             send(client_sock, error_str.c_str(), error_str.size(), 0);
         }
-        break;
+        
     }
 
     close(client_sock);

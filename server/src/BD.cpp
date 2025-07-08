@@ -130,32 +130,68 @@ std::shared_ptr<User> BD_search_User(const std::string& log){
         ФУНКЦИИ ЧАТОВ
 =====================================*/
 
+//вспомогательная функция собирает название чата из предосталенных логинов
+std::string fileNameChatP(std::string user1, std::string user2){
+    std::string fileChat = "file/";
+    fileChat += user1;
+    fileChat += "_";
+    fileChat += user2;
+    fileChat += ".txt";
+    return fileChat;
+}
 
-//запись в приватный чат, проверить перед записью существоваие файла!
-void write_Chat_P(const std::string& filename, std::shared_ptr<User> user, const std::string& mess) {
-    if (!fileExists(filename)) return;
-    std::ofstream fs(filename, std::ios::app);
+//запись в приватный чат (Отправитель, получатель, сообщение)
+bool write_Chat_P(std::shared_ptr<User> user_sender, std::shared_ptr<User> user_recipient, const std::string& mess) {
+    
+    // собираем название чата
+    std::string fileName;
+    //Если существует такой файл
+    if (fileExists(fileNameChatP(user_sender->getLogin(), user_recipient->getLogin()))) {
+        fileName = fileNameChatP(user_sender->getLogin(), user_recipient->getLogin());
+    } else if (fileExists(fileNameChatP(user_recipient->getLogin(), user_sender->getLogin()))){
+        fileName = fileNameChatP(user_recipient->getLogin(), user_sender->getLogin());
+    } else {
+        //Нету такого файла создаем заного
+        fileName = fileNameChatP(user_sender->getLogin(), user_recipient->getLogin());
+        createFile(fileName);
+    }
+    
+    std::ofstream fs(fileName, std::ios::app);
     if (fs.is_open()) {
-        fs << user->getLogin() << '\n'
+        fs << user_sender->getLogin() << '\n'
            << mess << "\n\n";
         fs.close();
+        return true;
     } else {
-        std::cerr << "Ошибка записи в файл чата: " << filename << std::endl;
+        std::cerr << "Ошибка записи в файл чата: " << fileName << std::endl;
+        return false;
     }
 }
 
 
 // Загрузить историю приватного чата: пары <login, сообщение>
-bool load_Chat_P(const std::string& filename, std::vector<std::pair<std::string, std::string>>& out) {
-    if (!fileExists(filename)) return false;
+bool load_Chat_P(std::shared_ptr<User> user_sender, std::shared_ptr<User> user_recipient, std::vector<std::pair<std::string, std::string>>& out) {
 
-    std::ifstream fs(filename);
+    // собираем название чата
+    std::string fileName;
+    //Если существует такой файл
+    if (fileExists(fileNameChatP(user_sender->getLogin(), user_recipient->getLogin()))) {
+        fileName = fileNameChatP(user_sender->getLogin(), user_recipient->getLogin());
+    } else if (fileExists(fileNameChatP(user_recipient->getLogin(), user_sender->getLogin()))){
+        fileName = fileNameChatP(user_recipient->getLogin(), user_sender->getLogin());
+    } else {
+        //Нету такого файла
+        return false;
+    }
+
+    std::ifstream fs(fileName);
 
     if (!fs.is_open()) return false;
 
     std::string login, mess;
     while (std::getline(fs, login) && std::getline(fs, mess)) {
         out.emplace_back(login, mess);
+        //пропуск разделитяля
         std::string sep;
         std::getline(fs, sep);
     }
@@ -163,13 +199,49 @@ bool load_Chat_P(const std::string& filename, std::vector<std::pair<std::string,
 }
 
 
-// //запись в общий чат, проверить перед записью существоваие файла!
-// void write_Chat_H(const std::string& filename, std::shared_ptr<User> user, const std::string& mess) {
+//запись в общий чат, проверить перед записью существоваие файла!
+bool write_Chat_H(std::shared_ptr<User> user_sender, const std::string& mess) {
     
-// }
+    createDirectoryIfNeeded(CHAT_HARED_FILE);
+    //Если существует такой файл
+    if (!fileExists(CHAT_HARED_FILE)) {
+        //Нету такого файла создаем заного
+        createFile(CHAT_HARED_FILE);
+    }
+    
+    std::ofstream fs(CHAT_HARED_FILE, std::ios::app);
+    if (fs.is_open()) {
+        fs << user_sender->getLogin() << '\n'
+           << mess << "\n\n";
+        fs.close();
+        return true;
+    } else {
+        std::cerr << "Ошибка записи в файл чата: " << CHAT_HARED_FILE << std::endl;
+        return false;
+    }
+}
 
 
-// // Загрузить историю общего чата: пары <login, сообщение>
-// bool load_Chat_H(const std::string& filename, std::vector<std::pair<std::string, std::string>>& out) {
+// Загрузить историю общего чата: пары <login, сообщение>
+bool load_Chat_H(std::vector<std::pair<std::string, std::string>>& out) {
 
-// }
+    createDirectoryIfNeeded(CHAT_HARED_FILE);
+    //Если существует такой файл
+    if (!fileExists(CHAT_HARED_FILE)) {
+        //Нету такого файла создаем заного
+        createFile(CHAT_HARED_FILE);
+    }
+
+    std::ifstream fs(CHAT_HARED_FILE);
+
+    if (!fs.is_open()) return false;
+
+    std::string login, mess;
+    while (std::getline(fs, login) && std::getline(fs, mess)) {
+        out.emplace_back(login, mess);
+        //пропуск разделитяля
+        std::string sep;
+        std::getline(fs, sep);
+    }
+    return true;
+}
