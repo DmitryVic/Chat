@@ -61,17 +61,10 @@ int main() {
         try {
             // обработка запроса
             string request = buffer;
-            handle_incoming_message(request);
+            handle_incoming_message(request, client_sock);
 
             
-            // Отправляем ответ
-            Message50 mess_class;
-            mess_class.status_request = true;
-            json mess_json;
-            mess_class.to_json(mess_json);
-            string mess_push = mess_json.dump();
-   
-            send(client_sock, mess_push.c_str(), mess_push.size(), 0);
+            
 
         } catch (const exception& e) {
             cerr << "Ошибка распаковки JSON: " << e.what() << endl;

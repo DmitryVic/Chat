@@ -91,7 +91,7 @@ int main() {
 
         // Принимаем ответ
         memset(buffer, 0, BUFFER_SIZE);
-        bytes_received = recv(sockfd, buffer, BUFFER_SIZE - 1, 0);
+        bytes_received = recv(sockfd, buffer, BUFFER_SIZE - 1, 0); // тут зависло
         if (bytes_received <= 0) {
             cerr << "Получение не удалось" << endl;
             break;

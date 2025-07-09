@@ -100,6 +100,32 @@ public:
 };
 
 
+// Передача данных общего чата
+class Message51 : public Message {
+public:
+    std::vector<std::pair<std::string, std::string>> history_chat_H;
+    
+    int getTupe() const override { return 51; }
+    
+    void to_json(json& j) const override;
+    
+    void from_json(const json& j) override;
+};
+
+
+// Передача данных приватного чата
+class Message52 : public Message {
+public:
+    std::vector<std::pair<std::string, std::string>> history_chat_P;
+    
+    int getTupe() const override { return 52; }
+    
+    void to_json(json& j) const override;
+    
+    void from_json(const json& j) override;
+};
+
+
 // Из строки JSON в класс сообщения
 std::unique_ptr<Message> parse_message(const std::string& json_str);
 

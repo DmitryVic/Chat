@@ -6,12 +6,13 @@
 #include <variant>
 #include <memory>
 #include <iostream>
+#include <sys/socket.h>         //для работы с сокетами
 
 
 std::string online_user_login;
 
 // Обработка входящих сообщений
-void handle_incoming_message(const std::string& json_str) {
+void handle_incoming_message(const std::string& json_str, int client_sock) {
     try {
         auto msg = parse_message(json_str);
         
@@ -20,8 +21,6 @@ void handle_incoming_message(const std::string& json_str) {
             return;
         }
         
-        std::cout << "Обработка типа: " << msg->getTupe() 
-                  << " указатель: " << msg.get() << std::endl;
 
         // Определяем тип сообщения
         switch(msg->getTupe()) {
@@ -31,11 +30,19 @@ void handle_incoming_message(const std::string& json_str) {
                 std::cout << "Запрос входа в систему:" << m1->login << std::endl;
                 std::cout << "Запрос входа в систему:" << m1->pass << std::endl;
                 online_user_login = m1->login;
+                
+                // Отправляем ответ
+                Message50 mess_class;
+                mess_class.status_request = true;
+                json mess_json;
+                mess_class.to_json(mess_json);
+                std::string mess_push = mess_json.dump();
+    
+                send(client_sock, mess_push.c_str(), mess_push.size(), 0);
                 // Логика обработки
                 break;
             }
             case 2: {
-                std::cout << "Попытка приведения к Message2..." << std::endl;
                 auto* m2 = dynamic_cast<Message2*>(msg.get());
                 if (!m2) {
                     std::cerr << "Ошибка приведения типа для Message2" << std::endl;
@@ -47,7 +54,15 @@ void handle_incoming_message(const std::string& json_str) {
                 std::shared_ptr<User> user = std::make_shared<User>(m2->login, m2->pass, m2->name);
                 BD_write_User(user);
                 online_user_login = m2->login;
-
+                
+                // Отправляем ответ
+                Message50 mess_class;
+                mess_class.status_request = true;
+                json mess_json;
+                mess_class.to_json(mess_json);
+                std::string mess_push = mess_json.dump();
+    
+                send(client_sock, mess_push.c_str(), mess_push.size(), 0);
                 // Логика обработки
                 break;
             }
@@ -69,13 +84,17 @@ void handle_incoming_message(const std::string& json_str) {
                     std::cout << "Конец сессии, авторизируйтесь заного";
                 }
                 write_Chat_P(user_sender, user_recipient, m3->mess);
-                std::vector<std::pair<std::string, std::string>> load; 
-                load_Chat_P(user_sender, user_recipient, load);
-                for (auto i : load)
-                {
-                    std::cout << "\t" << i.first << ":   ";
-                    std::cout << "\t" << i.second << "\n";
-                }
+                std::vector<std::pair<std::string, std::string>> history_chat_P; 
+                load_Chat_P(user_sender, user_recipient, history_chat_P);
+                std::cout << "Отправка сообщения 52";
+                // Отправляем ответ
+                Message52 mess_class;
+                mess_class.history_chat_P = history_chat_P;
+                json mess_json;
+                mess_class.to_json(mess_json);
+                std::string mess_push = mess_json.dump();
+    
+                send(client_sock, mess_push.c_str(), mess_push.size(), 0);
                 
                 
                 // Логика обработки
@@ -98,13 +117,16 @@ void handle_incoming_message(const std::string& json_str) {
                 }
 
                 write_Chat_H(user_sender, m4->mess);
-                std::vector<std::pair<std::string, std::string>> load; 
-                load_Chat_H(load);
-                for (auto i : load)
-                {
-                    std::cout << "\t" << i.first << ":   ";
-                    std::cout << "\t" << i.second << "\n";
-                }
+                std::vector<std::pair<std::string, std::string>> history_chat_H; 
+                load_Chat_H(history_chat_H);
+                // Отправляем ответ
+                Message51 mess_class;
+                mess_class.history_chat_H = history_chat_H;
+                json mess_json;
+                mess_class.to_json(mess_json);
+                std::string mess_push = mess_json.dump();
+    
+                send(client_sock, mess_push.c_str(), mess_push.size(), 0);
                 
                 // Логика обработки
                 std::cout << "Сообщение прошло";

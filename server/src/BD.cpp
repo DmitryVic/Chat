@@ -245,3 +245,29 @@ bool load_Chat_H(std::vector<std::pair<std::string, std::string>>& out) {
     }
     return true;
 }
+
+
+// получение бзеров с кем есть приватный чат, возвращает логины и имена для отображения
+// std::vector<std::pair<std::string, std::string>> my_chat_P(std::string my_login) {
+//     // файлы лежат в "file/"
+//     //Список путей  к файлам в папке file , path объект пути
+//     for (auto& path : listChatFiles("file")) {
+//         // файл: ".../file/login1_login2.txt"
+//         // имя файла без расширения .txt - строка
+//         auto fname = std::filesystem::path(path).stem().string(); 
+//         // позиция симпола _
+//         auto pos = fname.find('_');
+//         // нету символа _  - пропускаем
+//         if (pos == std::string::npos) continue;
+
+//         //парсинг логинов
+//         auto login1 = fname.substr(0, pos);
+//         auto login2 = fname.substr(pos + 1);
+//         // получаем пользователей
+//         auto u1 = getOneUserByLogin(login1);
+//         auto u2 = getOneUserByLogin(login2);
+//         // пусто - пропускаем
+//         if (!u1 || !u2) continue;
+        
+//     }
+// }
