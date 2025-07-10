@@ -35,10 +35,9 @@ int main() {
     while (true) {
         
         //Формируем сообщение
-        Message2 mess_class;
+        Message1 mess_class;
         mess_class.login = "LOGIN";
         mess_class.pass = "пароль";
-        mess_class.name = "Дмитрий";
 
         // создаем json и преобразуем сообщение
         json mess_json;
@@ -69,11 +68,9 @@ int main() {
 
         //----------------------------------------------------------------------------------------------------------------------
 
-        //Формируем сообщение
-        Message3 mess_Pr;
-        mess_Pr.user_sender = "LOGIN";
-        mess_Pr.user_recipient = "Log";
-        mess_Pr.mess = "Привет это сообщение только тебе!";
+        //Формируем сообщение Запрос на получение списка приватных чатов
+        Message7 mess_Pr;
+        mess_Pr.my_login = "LOGIN";
 
         mess_json.clear();  // Очищаем json перед новым использованием
         // создаем json и преобразуем сообщение
@@ -106,9 +103,8 @@ int main() {
         //----------------------------------------------------------------------------------------------------------------------
 
         //Формируем сообщение
-        Message4 mess_H;
-        mess_H.user_sender = "LOGIN";
-        mess_H.mess = "Привет это сообщение всем!";
+        Message6 mess_H;
+        mess_H.my_login = "LOGIN";
         
         mess_json.clear();  // Очищаем json перед новым использованием
         // создаем json и преобразуем сообщение

@@ -125,6 +125,89 @@ std::shared_ptr<User> BD_search_User(const std::string& log){
 }
 
 
+// Получить список всех юзеров исключая юзера, который делает запрос
+std::vector<std::pair<std::string, std::string>> list_all_User(std::string my_login){
+    createDirectoryIfNeeded(BD_FILE);
+    std::vector<std::pair<std::string, std::string>> send;
+    if(!fileExists(BD_FILE)){
+        return send;
+    }
+
+    std::ifstream fr(BD_FILE);
+    if(!fr.is_open()) {
+        std::cerr << "Не могу открыть файл " << BD_FILE << '\n';
+        return send;
+    }
+
+    std::string login;
+    std::string password;
+    std::string name;
+    
+    while (std::getline(fr, login) && 
+           std::getline(fr, password) && 
+           std::getline(fr, name)) {
+        // Пропускаем пустые строки
+        // Если любое из полей пустое - пропускаем эту итерацию цикла Защита от некорр данных
+        if (login.empty() || password.empty() || name.empty())
+            continue;
+        
+        // Пропускаем пустую строку-разделитель
+        std::string empty_line;
+        std::getline(fr, empty_line);
+
+        // пропускаем нашего пользователя
+        if (login == my_login)
+            continue;
+
+        std::shared_ptr<User> temporary_user = std::make_shared<User>(login, password, name);
+
+        send.push_back({temporary_user->getLogin(), temporary_user->getName()});
+        
+        
+    }
+
+    fr.close();
+    return send;
+}
+
+
+//получение бзеров с кем есть приватный чат, возвращает логины и имена для отображения
+// std::vector<std::pair<std::string ЛОГИН, std::string ИМЯ>>
+std::vector<std::pair<std::string, std::string>> my_chat_P(std::string my_login) {
+    std::vector<std::pair<std::string, std::string>> send;
+    // файлы лежат в "file/"
+    //Список путей  к файлам в папке file , path объект пути
+    for (auto& path : listChatFiles("file")) {
+        // файл: ".../file/login1_login2.txt"
+        // имя файла без расширения .txt - строка
+        auto fname = std::filesystem::path(path).stem().string(); 
+        // позиция симпола _
+        auto pos = fname.find('_');
+        // нету символа _  - пропускаем
+        if (pos == std::string::npos) continue;
+
+        //парсинг логинов
+        auto login1 = fname.substr(0, pos);
+        auto login2 = fname.substr(pos + 1);
+        // получаем пользователей
+        auto u1 = BD_search_User(login1);
+        auto u2 = BD_search_User(login2);
+        // пусто - пропускаем
+        if (!u1 || !u2) continue;
+        
+        // запаковываем логины и имена наших собеседников
+        if (u1->getLogin() == my_login)
+        {
+            send.push_back({u2->getLogin(), u2->getName()});
+        }
+        else if (u2->getLogin() == my_login)
+        {
+            send.push_back({u1->getLogin(), u2->getName()});
+        }
+    }
+    return send;
+}
+
 
 /*=====================================
         ФУНКЦИИ ЧАТОВ
@@ -246,28 +329,3 @@ bool load_Chat_H(std::vector<std::pair<std::string, std::string>>& out) {
     return true;
 }
 
-
-// получение бзеров с кем есть приватный чат, возвращает логины и имена для отображения
-// std::vector<std::pair<std::string, std::string>> my_chat_P(std::string my_login) {
-//     // файлы лежат в "file/"
-//     //Список путей  к файлам в папке file , path объект пути
-//     for (auto& path : listChatFiles("file")) {
-//         // файл: ".../file/login1_login2.txt"
-//         // имя файла без расширения .txt - строка
-//         auto fname = std::filesystem::path(path).stem().string(); 
-//         // позиция симпола _
-//         auto pos = fname.find('_');
-//         // нету символа _  - пропускаем
-//         if (pos == std::string::npos) continue;
-
-//         //парсинг логинов
-//         auto login1 = fname.substr(0, pos);
-//         auto login2 = fname.substr(pos + 1);
-//         // получаем пользователей
-//         auto u1 = getOneUserByLogin(login1);
-//         auto u2 = getOneUserByLogin(login2);
-//         // пусто - пропускаем
-//         if (!u1 || !u2) continue;
-        
-//     }
-// }

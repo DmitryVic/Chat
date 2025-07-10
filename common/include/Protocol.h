@@ -82,6 +82,45 @@ public:
 };
 
 
+// Запрос на получение списка приватных чатов
+class Message5 : public Message {
+public:
+    std::string my_login;
+    
+    int getTupe() const override { return 5; }
+    
+    void to_json(json& j) const override;
+    
+    void from_json(const json& j) override;
+};
+
+
+// Запрос на получение списока всех юзеров в чате кому написать
+class Message6 : public Message {
+public:
+    std::string my_login;
+    
+    int getTupe() const override { return 6; }
+    
+    void to_json(json& j) const override;
+    
+    void from_json(const json& j) override;
+};
+
+
+// Запрос юзера получить свое имя
+class Message7 : public Message {
+public:
+    std::string my_login;
+    
+    int getTupe() const override { return 7; }
+    
+    void to_json(json& j) const override;
+    
+    void from_json(const json& j) override;
+};
+
+
 /*=====================================
         СООБЩЕНИЯ ОТ СЕРВЕРА
 =====================================*/
@@ -126,7 +165,58 @@ public:
 };
 
 
+// Передача списка истории приватных чатов
+class Message53 : public Message {
+public:
+    std::vector<std::pair<std::string, std::string>> list_chat_P;
+    
+    int getTupe() const override { return 53; }
+    
+    void to_json(json& j) const override;
+    
+    void from_json(const json& j) override;
+};
+
+
+// получить список всех юзеров в чате кому написать
+class Message54 : public Message {
+public:
+    std::vector<std::pair<std::string, std::string>> list_Users;
+    
+    int getTupe() const override { return 54; }
+    
+    void to_json(json& j) const override;
+    
+    void from_json(const json& j) override;
+};
+
+
+// Ответ сервера логин занят
+class Message55 : public Message {
+public:
+    bool status_request;
+    
+    int getTupe() const override { return 55; }
+    
+    void to_json(json& j) const override;
+    
+    void from_json(const json& j) override;
+};
+
+
+// Ответ сервера вернуть имя
+class Message56 : public Message {
+public:
+    std::string my_name;
+    
+    int getTupe() const override { return 56; }
+    
+    void to_json(json& j) const override;
+    
+    void from_json(const json& j) override;
+};
+
 // Из строки JSON в класс сообщения
-std::unique_ptr<Message> parse_message(const std::string& json_str);
+std::shared_ptr<Message> parse_message(const std::string& json_str);
 
 
