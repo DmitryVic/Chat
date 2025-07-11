@@ -1,17 +1,33 @@
-#include "File.h"
+#include "BD.h"
 #include "User.h"
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <filesystem>
 
-
 namespace fs = std::filesystem;
 
-static std::string BD_FILE = "file/DB.txt";
-//путь к файлу общего чата, путь к БД находится в БД cpp file/
-static std::string CHAT_HARED_FILE = "file/ChH.txt";
 
+
+DataBaseFile::DataBaseFile()
+{
+    //Создть директорию, если её нет
+    createDirectoryIfNeeded(BD_FILE);
+    //Если существует такой файл
+    if (!fileExists(BD_FILE)) {
+        //Нету такого файла создаем заного
+        createFile(BD_FILE);
+    }
+    //Создть директорию, если её нет
+    createDirectoryIfNeeded(CHAT_HARED_FILE);
+    //Если существует такой файл
+    if (!fileExists(CHAT_HARED_FILE)) {
+        //Нету такого файла создаем заного
+        createFile(CHAT_HARED_FILE);
+    }
+}
+
+DataBaseFile::~DataBaseFile() = default;
 
 /*=====================================
         ОБЩИЕ ФУНКЦИИ
@@ -19,14 +35,14 @@ static std::string CHAT_HARED_FILE = "file/ChH.txt";
 
 
 // Файл существует или нет
-bool fileExists(const std::string& filename) {
+bool DataBaseFile::fileExists(const std::string& filename) {
     std::ifstream file(filename);
     return file.good();
 }
 
 
 // Создает директорию, если её нет
-void createDirectoryIfNeeded(const std::string& path) {
+void DataBaseFile::createDirectoryIfNeeded(const std::string& path) {
 
     auto dir_path = fs::path(path).parent_path();
     if (!dir_path.empty() && !fs::exists(dir_path)) {
@@ -37,7 +53,7 @@ void createDirectoryIfNeeded(const std::string& path) {
 
 
 // Создать файл
-void createFile(const std::string& filename) {
+void DataBaseFile::createFile(const std::string& filename) {
     createDirectoryIfNeeded(filename);
 
     std::ofstream file(filename, std::ios::out);
@@ -51,7 +67,7 @@ void createFile(const std::string& filename) {
 
 
 // Список всех .txt-файлов в директории dir
-std::vector<std::string> listChatFiles(const std::string& dir) {
+std::vector<std::string> DataBaseFile::listChatFiles(const std::string& dir) {
     std::vector<std::string> out;
     if (!fs::exists(dir) || !fs::is_directory(dir)) return out;
     for (auto& p : fs::directory_iterator(dir)) {
@@ -69,7 +85,7 @@ std::vector<std::string> listChatFiles(const std::string& dir) {
 
 
 //запись юзера
-void BD_write_User(std::shared_ptr<User> user) {
+void DataBaseFile::write_User(std::shared_ptr<User> user) {
     createDirectoryIfNeeded(BD_FILE);
     std::ofstream fs(BD_FILE, std::ios::app);
     if (fs.is_open()) {
@@ -84,7 +100,7 @@ void BD_write_User(std::shared_ptr<User> user) {
 
 
 //Поиск юзера пологину
-std::shared_ptr<User> BD_search_User(const std::string& log){
+std::shared_ptr<User> DataBaseFile::search_User(const std::string& log){
     createDirectoryIfNeeded(BD_FILE);
     if(!fileExists(BD_FILE)){
         return nullptr;
@@ -126,7 +142,7 @@ std::shared_ptr<User> BD_search_User(const std::string& log){
 
 
 // Получить список всех юзеров исключая юзера, который делает запрос
-std::vector<std::pair<std::string, std::string>> list_all_User(std::string my_login){
+std::vector<std::pair<std::string, std::string>> DataBaseFile::list_all_User(std::string my_login){
     createDirectoryIfNeeded(BD_FILE);
     std::vector<std::pair<std::string, std::string>> send;
     if(!fileExists(BD_FILE)){
@@ -173,7 +189,7 @@ std::vector<std::pair<std::string, std::string>> list_all_User(std::string my_lo
 
 //получение бзеров с кем есть приватный чат, возвращает логины и имена для отображения
 // std::vector<std::pair<std::string ЛОГИН, std::string ИМЯ>>
-std::vector<std::pair<std::string, std::string>> my_chat_P(std::string my_login) {
+std::vector<std::pair<std::string, std::string>> DataBaseFile::my_chat_P(std::string my_login) {
     std::vector<std::pair<std::string, std::string>> send;
     // файлы лежат в "file/"
     //Список путей  к файлам в папке file , path объект пути
@@ -190,8 +206,8 @@ std::vector<std::pair<std::string, std::string>> my_chat_P(std::string my_login)
         auto login1 = fname.substr(0, pos);
         auto login2 = fname.substr(pos + 1);
         // получаем пользователей
-        auto u1 = BD_search_User(login1);
-        auto u2 = BD_search_User(login2);
+        auto u1 = search_User(login1);
+        auto u2 = search_User(login2);
         // пусто - пропускаем
         if (!u1 || !u2) continue;
         
@@ -214,7 +230,7 @@ std::vector<std::pair<std::string, std::string>> my_chat_P(std::string my_login)
 =====================================*/
 
 //вспомогательная функция собирает название чата из предосталенных логинов
-std::string fileNameChatP(std::string user1, std::string user2){
+std::string DataBaseFile::fileNameChatP(std::string user1, std::string user2){
     std::string fileChat = "file/";
     fileChat += user1;
     fileChat += "_";
@@ -224,7 +240,7 @@ std::string fileNameChatP(std::string user1, std::string user2){
 }
 
 //запись в приватный чат (Отправитель, получатель, сообщение)
-bool write_Chat_P(std::shared_ptr<User> user_sender, std::shared_ptr<User> user_recipient, const std::string& mess) {
+bool DataBaseFile::write_Chat_P(std::shared_ptr<User> user_sender, std::shared_ptr<User> user_recipient, const std::string& mess) {
     
     // собираем название чата
     std::string fileName;
@@ -253,7 +269,7 @@ bool write_Chat_P(std::shared_ptr<User> user_sender, std::shared_ptr<User> user_
 
 
 // Загрузить историю приватного чата: пары <login, сообщение>
-bool load_Chat_P(std::shared_ptr<User> user_sender, std::shared_ptr<User> user_recipient, std::vector<std::pair<std::string, std::string>>& out) {
+bool DataBaseFile::load_Chat_P(std::shared_ptr<User> user_sender, std::shared_ptr<User> user_recipient, std::vector<std::pair<std::string, std::string>>& out) {
 
     // собираем название чата
     std::string fileName;
@@ -283,7 +299,7 @@ bool load_Chat_P(std::shared_ptr<User> user_sender, std::shared_ptr<User> user_r
 
 
 //запись в общий чат, проверить перед записью существоваие файла!
-bool write_Chat_H(std::shared_ptr<User> user_sender, const std::string& mess) {
+bool DataBaseFile::write_Chat_H(std::shared_ptr<User> user_sender, const std::string& mess) {
     
     createDirectoryIfNeeded(CHAT_HARED_FILE);
     //Если существует такой файл
@@ -306,7 +322,7 @@ bool write_Chat_H(std::shared_ptr<User> user_sender, const std::string& mess) {
 
 
 // Загрузить историю общего чата: пары <login, сообщение>
-bool load_Chat_H(std::vector<std::pair<std::string, std::string>>& out) {
+bool DataBaseFile::load_Chat_H(std::vector<std::pair<std::string, std::string>>& out) {
 
     createDirectoryIfNeeded(CHAT_HARED_FILE);
     //Если существует такой файл
@@ -328,4 +344,3 @@ bool load_Chat_H(std::vector<std::pair<std::string, std::string>>& out) {
     }
     return true;
 }
-

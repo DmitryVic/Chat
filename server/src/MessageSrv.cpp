@@ -1,4 +1,4 @@
-#include "Protocol.h"
+#include "MessageSrv.h"
 #include <nlohmann/json.hpp>
 #include <string>
 #include <variant>
@@ -106,6 +106,13 @@ void Message50::from_json(const json& j){
     status_request = j.at("status_request").get<bool>();
 }
 
+// Ответ сервера на запрос true or false
+void Message50::push_Mess(std::shared_ptr<NetworkServer> network){
+    json mess_json;
+    to_json(mess_json);
+    network->sendMess(mess_json.dump());
+}
+
 
 // Передача данных общего чата
 void Message51::to_json(json& j) const{
@@ -161,6 +168,13 @@ void Message55::from_json(const json& j){
     status_request = j.at("status_request").get<bool>();
 }
 
+// Ответ сервера логин занят
+void Message55::push_Mess(std::shared_ptr<NetworkServer> network){
+    json mess_json;
+    to_json(mess_json);
+    network->sendMess(mess_json.dump());
+}
+
 // получение имени юзера
 void Message56::to_json(json& j) const{
     j = {{"type", 56}, {"my_name", my_name}};
@@ -172,7 +186,7 @@ void Message56::from_json(const json& j){
 }
 
 
-std::unique_ptr<Message> Message::create(int type) {
+std::Message<MessageSrv> MessageSrv::create(int type) {
     switch(type) {
         case 1: return std::make_unique<Message1>();
         case 2: return std::make_unique<Message2>();
@@ -193,7 +207,7 @@ std::unique_ptr<Message> Message::create(int type) {
 }
 
 
-std::shared_ptr<Message> parse_message(const std::string& json_str) {
+std::shared_ptr<MessageSrv> parse_message(const std::string& json_str) {
     try {
         json j = json::parse(json_str);
         
@@ -204,7 +218,7 @@ std::shared_ptr<Message> parse_message(const std::string& json_str) {
         int type = j["type"].get<int>();
         
         // Создаем объект нужного типа
-        auto msg = Message::create(type);
+        auto msg = MessageSrv::create(type);
 
         // Заполняем его данными из JSON
         msg->from_json(j);

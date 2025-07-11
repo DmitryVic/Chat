@@ -1,19 +1,25 @@
-#include "Network.h"
-#include "Protocol.h"
+#include "NetworkServer.h"
+#include "BD.h"
+#include "Message.h"
 #include <iostream>
 #include <unistd.h>             //базовые функции для работы с системой Linux
 #include <string.h>             //библиотека для работы со строками C
 #include <sys/socket.h>         //для работы с сокетами
 #include <netinet/in.h>         //содержит структуры и константы для работы с протоколами
 #include <nlohmann/json.hpp>
+#include <memory>
 
 using namespace std;
 using json = nlohmann::json;
 
-#define BUFFER_SIZE 1024
 #define PORT 7777
 
 int main() {
+    
+    std::shared_ptr<DataBase> db = make_shared<DataBase>(new DataBaseFile());
+    std::shared_ptr<NetworkServer> network = make_shared<NetworkServer>(new NetworkServer(PORT));
+    network->start();
+
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd == -1) {
         cerr << "Создание сокета не удалось!" << endl;

@@ -1,5 +1,5 @@
-#include "Network.h"
-#include "Protocol.h"
+#include "NetworkClient.h"
+#include "Message.h"
 #include <nlohmann/json.hpp>
 #include <string>
 #include <variant>

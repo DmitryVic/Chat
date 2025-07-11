@@ -4,8 +4,8 @@
 if(UNIX)
     add_executable(chat_server
         src/main.cpp
+        src/Core.cpp
         src/BD.cpp
-        src/File.cpp
         src/Network.cpp
     )
 

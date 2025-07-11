@@ -2,7 +2,7 @@
 
 # Создаем статическую библиотеку
 add_library(common STATIC
-    src/Protocol.cpp
+    src/Message.cpp
     src/User.cpp
 )
 

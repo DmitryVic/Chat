@@ -1,8 +1,10 @@
 #pragma once
 #include <nlohmann/json.hpp>
+#include "Network.h"
 #include <string>
 #include <variant>
 #include <memory>
+
 
 using json = nlohmann::json;
 
@@ -10,12 +12,15 @@ using json = nlohmann::json;
 class Message {
 public:
     virtual int getTupe() const = 0; 
+    //создание JSON
     virtual void to_json(json& j) const = 0;
+    //  из JSON
     virtual void from_json(const json& j) = 0;
     virtual ~Message() = default;
 
     //Создание сообщений
     static std::unique_ptr<Message> create(int type);
+    
 };
 
 
@@ -35,6 +40,8 @@ public:
     void to_json(json& j) const override;
     
     void from_json(const json& j) override;
+
+
 };
 
 
@@ -136,6 +143,10 @@ public:
     void to_json(json& j) const override;
     
     void from_json(const json& j) override;
+
+    void push_Mess(std::shared_ptr<Network> network);
+
+    void push_Mes_Err();
 };
 
 

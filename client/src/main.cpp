@@ -1,4 +1,4 @@
-#include "Protocol.h"
+#include "Message.h"
 #include "Network.h"
 #include <iostream>
 #include <unistd.h>

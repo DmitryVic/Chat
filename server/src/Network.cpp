@@ -1,6 +1,6 @@
-#include "Network.h"
+#include "NetworkServer.h"
 #include "BD.h"
-#include "Protocol.h"
+#include "Message.h"
 #include <nlohmann/json.hpp>
 #include <string>
 #include <variant>
