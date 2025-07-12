@@ -3,7 +3,7 @@
 
 add_executable(chat_client
     src/main.cpp
-    src/Network.cpp
+    #src/Network.cpp
 )
 
 # линкует клиентский исполняемый файл с общей библиотекой

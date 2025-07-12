@@ -6,7 +6,7 @@ if(UNIX)
         src/main.cpp
         src/Core.cpp
         src/BD.cpp
-        src/Network.cpp
+        #src/Network.cpp
     )
 
     # линковка с общей библиотекой

@@ -6,6 +6,9 @@
 #include <string>
 #include <variant>
 #include <memory>
+#include "Core.h"
+
+std::string online_user_login;
 
 // Базовый класс обработчика - метод цепочки ответственности
 class MessageHandler {
@@ -14,8 +17,7 @@ protected:
     std::shared_ptr<NetworkServer> _network;
     //Паттерн Цепочка ответственности каждый будет пытаться обработать, но сможет только 1
     std::unique_ptr<MessageHandler> _next;
-    //Для авторизации пользователя
-    std::string online_user_login;
+   
 
     
 public:
@@ -57,7 +59,7 @@ public:
         bool authSuccess = user && (m1->pass == user->getPass());
         
         //Фиксация авторизации
-        online_user_login = m1->login;
+        online_user_login = user->getLogin();
 
         // Формируем ответ
         Message50 response;
@@ -102,10 +104,14 @@ public:
             _network->sendMess(j.dump());
             return true;
         }
+
         
+
         std::shared_ptr<User> user = std::make_shared<User>(m2->login, m2->pass, m2->name);
         _db->write_User(user);
-        
+        //Фиксация авторизации
+        online_user_login = user->getLogin();
+
         Message50 response;
         response.status_request = true;
         json j;
@@ -133,6 +139,7 @@ public:
         
         if (user_sender == nullptr || user_recipient == nullptr)
         {
+            std::cerr << "ошибка бд: "  << std::endl;
             //Error: Не верные данные авторизации авторизованного юзера (сообщение 3)
             // Отправляем ответ об ошибке
             Message50 response;
@@ -143,7 +150,8 @@ public:
             return true;
         }
 
-        if(user_sender->getLogin() != online_user_login){
+        if(online_user_login.empty()){
+            std::cerr << "Не авторизован: "  << std::endl;
             //Error: Попытка получить ответ не авторизованного юзера (сообщение 3)"
             // Отправляем ответ об ошибке
             Message50 response;

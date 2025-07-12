@@ -12,14 +12,10 @@ class Network
 private:
 
 public:
-    Network();
+    Network(){};
     virtual ~Network() = default;
     virtual void start() = 0;
     virtual void acceptClient() = 0;
-    virtual void connecting() = 0;
     virtual std::string getMess() = 0;
     virtual void sendMess(const std::string& message) = 0;
 };
-
-
-

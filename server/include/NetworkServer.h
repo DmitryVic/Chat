@@ -8,7 +8,8 @@
 #include <stdexcept>            //исключения
 
 
-class NetworkServer : Network
+
+class NetworkServer : public Network
 {
 private:
     int _server_fd;         // дескриптор серверного сокета
@@ -60,15 +61,17 @@ public:
     }
 
 
-    void acceptClient() override{
+    void acceptClient() override {
         sockaddr_in client_addr;
         socklen_t addr_len = sizeof(client_addr);
         
-        //ожидаение подключения клиента
-        int client_socet = accept(_server_fd, (sockaddr*)&client_addr, &addr_len);
+        // Сохраняем клиентский сокет в _client_socket
+        _client_socket = accept(_server_fd, (sockaddr*)&client_addr, &addr_len);
 
-        if (client_socet < 0)
+        if (_client_socket < 0)
             throw std::runtime_error("Ошибка подключения клиента");
+        
+        std::cerr << "Клиент подключен: " << _client_socket << std::endl;
     }
 
 
@@ -85,8 +88,10 @@ public:
     }
 
 
-    void sendMess(const std::string& mess) override{
-        if (send(_client_socket, mess.c_str(), mess.size(), 0));
-            throw  std::runtime_error("Ошибка отправки Mess");
+    void sendMess(const std::string& mess) override {
+        int result = send(_client_socket, mess.c_str(), mess.size(), 0);
+        if (result <= 0) {
+            throw std::runtime_error("Ошибка отправки Mess");
+        }
     }
 };

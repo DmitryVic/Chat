@@ -11,7 +11,7 @@ class DataBase
 private:
 
 public:
-        DataBase();
+        DataBase(){}
         ~DataBase() = default;
 
         //=================================================================
@@ -57,7 +57,9 @@ public:
 };
 
 
-class DataBaseFile : DataBase
+
+
+class DataBaseFile : public DataBase
 {
 private:
         std::string CHAT_HARED_FILE = "file/ChH.txt";

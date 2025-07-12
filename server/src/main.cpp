@@ -1,6 +1,7 @@
 #include "NetworkServer.h"
 #include "BD.h"
 #include "Message.h"
+#include "Core.h"
 #include <iostream>
 #include <unistd.h>             //базовые функции для работы с системой Linux
 #include <string.h>             //библиотека для работы со строками C
@@ -16,74 +17,15 @@ using json = nlohmann::json;
 
 int main() {
     
-    std::shared_ptr<DataBase> db = make_shared<DataBase>(new DataBaseFile());
-    std::shared_ptr<NetworkServer> network = make_shared<NetworkServer>(new NetworkServer(PORT));
+    std::shared_ptr<DataBase> db = make_shared<DataBaseFile>();
+    std::shared_ptr<NetworkServer> network = std::make_shared<NetworkServer>(PORT);
     network->start();
-
-    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd == -1) {
-        cerr << "Создание сокета не удалось!" << endl;
-        return 1;
-    }
-
-    sockaddr_in server_addr{};
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(PORT);
-    server_addr.sin_addr.s_addr = INADDR_ANY;
-
-    if (bind(sockfd, (sockaddr*)&server_addr, sizeof(server_addr))) {
-        cerr << "Связь потеряна!" << endl;
-        close(sockfd);
-        return 1;
-    }
-
-    if (listen(sockfd, 5)) {
-        cerr << "Ошибка при прослушивании сокета!" << endl;
-        close(sockfd);
-        return 1;
-    }
-
-    cout << "Сервер прослушивание на порту" << PORT << endl;
-
-    sockaddr_in client_addr{};
-    socklen_t client_len = sizeof(client_addr);
-    int client_sock = accept(sockfd, (sockaddr*)&client_addr, &client_len);
-    if (client_sock < 0) {
-        cerr << "Не удалось принять сообщение!" << endl;
-        close(sockfd);
-        return 1;
-    }
-    int ii = 0;
-    char buffer[BUFFER_SIZE];
-    while (true) {
-        memset(buffer, 0, BUFFER_SIZE);
-        ssize_t bytes_received = recv(client_sock, buffer, BUFFER_SIZE - 1, 0);
-        cerr << "-------------------------------------------- Счетчик итераций :" << ++ii << " из 3" << endl;
-        if (bytes_received <= 0) {
-            cerr << "Ошибка в получении сообщения или закрыто соединение" << endl;
-            break;
-        }
-
-        try {
-            // обработка запроса
-            string request = buffer;
-            handle_incoming_message(request, client_sock);
-
-            
-            
-
-        } catch (const exception& e) {
-            cerr << "Ошибка распаковки JSON: " << e.what() << endl;
-            json error_response;
-            error_response["type"] = 8;
-            error_response["error"] = "Ошибка JSON формата";
-            string error_str = error_response.dump();
-            send(client_sock, error_str.c_str(), error_str.size(), 0);
-        }
+    try {
         
-    }
+        chat_start(db, network);
 
-    close(client_sock);
-    close(sockfd);
+    } catch (const exception& e) {
+        cerr << "Ошибка: " << e.what() << endl;
+    }
     return 0;
 }
