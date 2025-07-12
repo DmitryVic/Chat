@@ -10,6 +10,7 @@ if(UNIX)
         src/Core.cpp
         src/BD.cpp
         src/NetworkServer.cpp
+        src/MessageHandler.cpp
     )
 
     # линковка с общей библиотекой

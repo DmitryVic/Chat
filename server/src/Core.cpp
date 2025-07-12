@@ -7,6 +7,7 @@
 #include <nlohmann/json.hpp>
 #include <memory>
 
+std::string online_user_login;
 
 void chat_start(std::shared_ptr<DataBase> db, 
                std::shared_ptr<NetworkServer> network) {
@@ -16,14 +17,21 @@ void chat_start(std::shared_ptr<DataBase> db,
     auto Handler1 = std::make_unique<HandlerMessage1>(db, network);
     auto Handler2 = std::make_unique<HandlerMessage2>(db, network);
     auto Handler3 = std::make_unique<HandlerMessage3>(db, network);
+    auto Handler4 = std::make_unique<HandlerMessage4>(db, network);
+    auto Handler5 = std::make_unique<HandlerMessage5>(db, network);
+    auto Handler6 = std::make_unique<HandlerMessage6>(db, network);
+    auto Handler7 = std::make_unique<HandlerMessage7>(db, network);
     auto messageError = std::make_unique<HandlerErr>(db, network);
 
     // Строим цепочку С КОНЦА:  В ДРУГОМ ПОРЯДКЕ НЕЛЬЗЯ move ПЕРЕДАЕТ ВЛАДЕНИЕ ПОСЛЕ 1 ПЕРЕМЕШЕНИЯ ПЕРЕДАДИМ NULLPTR 
     messageError->setNext(nullptr);  
 
-    Handler3->setNext(std::move(messageError));// Последний в цепочке messageError
+    Handler7->setNext(std::move(messageError));// Последний в цепочке messageError
     // NEW
-
+    Handler6->setNext(std::move(Handler7));
+    Handler5->setNext(std::move(Handler6));
+    Handler4->setNext(std::move(Handler5));
+    Handler3->setNext(std::move(Handler4));
     Handler2->setNext(std::move(Handler3));
     Handler1->setNext(std::move(Handler2));
 

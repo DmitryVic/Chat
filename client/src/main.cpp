@@ -153,6 +153,7 @@ int main() {
         Message1 mess_class;
         mess_class.login = "LOGIN";
         mess_class.pass = "пароль";
+        
 
         // создаем json и преобразуем сообщение
         json mess_json;
@@ -185,10 +186,9 @@ int main() {
         //----------------------------------------------------------------------------------------------------------------------
 
         //Формируем сообщение 
-        Message3 mess_H;
-        mess_H.user_sender = "LOGIN";
-        mess_H.user_recipient = "Log";
-        mess_H.mess = "Сообщение для теста";
+        Message7 mess_H;
+        mess_H.my_login = "LOGIN";
+
 
         mess_json.clear();  // Очищаем json перед новым использованием
         // создаем json и преобразуем сообщение

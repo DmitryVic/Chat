@@ -49,7 +49,7 @@ void NetworkServer::acceptClient()  {
     if (_client_socket < 0)
         throw std::runtime_error("Ошибка подключения клиента");
     
-    std::cerr << "Клиент подключен: " << _client_socket << std::endl;
+    std::cerr << "Клиент подключен к сокету: " << _client_socket << std::endl;
 }
 
 

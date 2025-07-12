@@ -41,7 +41,6 @@ public:
     
     void from_json(const json& j) override;
 
-
 };
 
 
@@ -143,8 +142,6 @@ public:
     void to_json(json& j) const override;
     
     void from_json(const json& j) override;
-
-    void push_Mess(std::shared_ptr<Network> network);
 
     void push_Mes_Err();
 };
