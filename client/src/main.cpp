@@ -186,8 +186,8 @@ int main() {
 
         //Формируем сообщение 
         Message3 mess_H;
-        mess_H.user_sender = "Log";
-        mess_H.user_recipient = "LOGIN";
+        mess_H.user_sender = "LOGIN";
+        mess_H.user_recipient = "Log";
         mess_H.mess = "Сообщение для теста";
 
         mess_json.clear();  // Очищаем json перед новым использованием

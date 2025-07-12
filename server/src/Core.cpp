@@ -1,5 +1,4 @@
 #include "Core.h"
-#include "log.h"
 #include "NetworkServer.h"
 #include "MessageHandler.h"
 #include "BD.h"
@@ -36,27 +35,17 @@ void chat_start(std::shared_ptr<DataBase> db,
             auto msg = parse_message(json_str);
             
             if (!msg) {
-                Message50 mess_err;
-                mess_err.status_request = false;
-                json mess_json;
-                mess_err.to_json(mess_json);
-                std::string mess_push = mess_json.dump();
-                network->sendMess(mess_push);
+                throw  std::runtime_error("Ошибка в полученых данных от пользователя, закрываю соединение...");
                 
                 continue;
             }
             
             if (!Handler1->handle(msg)) {
-                Message50 mess_err;
-                mess_err.status_request = false;
-                json mess_json;
-                mess_err.to_json(mess_json);
-                std::string mess_push = mess_json.dump();
-                network->sendMess(mess_push);
+                throw  std::runtime_error("Ошибка в обработке данных, закрываю соединение...");
             }
             
         } catch (const std::exception& e) {
-            std::cout << e.what();
+            std::cerr << e.what();
             break;
         }
     }

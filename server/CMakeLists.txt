@@ -1,4 +1,7 @@
 
+# СПринудительно установить стандарт c++ 17
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # компиляция только для Linux
 if(UNIX)
@@ -6,7 +9,7 @@ if(UNIX)
         src/main.cpp
         src/Core.cpp
         src/BD.cpp
-        #src/Network.cpp
+        src/NetworkServer.cpp
     )
 
     # линковка с общей библиотекой

@@ -56,10 +56,12 @@ public:
         
         // Логика обработки
         std::shared_ptr<User> user = _db->search_User(m1->login);
+
         bool authSuccess = user && (m1->pass == user->getPass());
-        
         //Фиксация авторизации
-        online_user_login = user->getLogin();
+        if (authSuccess)
+            online_user_login = user->getLogin();
+        
 
         // Формируем ответ
         Message50 response;
@@ -147,11 +149,11 @@ public:
             json j;
             response.to_json(j);
             _network->sendMess(j.dump());
-            return true;
+            throw std::runtime_error("HandlerMessage3: Закрываю соединение...");
         }
 
-        if(online_user_login.empty()){
-            std::cerr << "Не авторизован: "  << std::endl;
+        if(online_user_login !=  user_sender->getLogin()){
+            std::cerr << "Пользователь присылает не верные данные или он не авторизован"  << std::endl;
             //Error: Попытка получить ответ не авторизованного юзера (сообщение 3)"
             // Отправляем ответ об ошибке
             Message50 response;
@@ -159,7 +161,7 @@ public:
             json j;
             response.to_json(j);
             _network->sendMess(j.dump());
-            return true;
+            throw std::runtime_error("HandlerMessage3: Закрываю соединение...");
         }
 
         _db->write_Chat_P(user_sender, user_recipient, m3->mess);
