@@ -316,3 +316,9 @@ Menu_go_in_Chat console_interface::show_menu_authorization() {
     }
 
 }
+
+
+//отобразить авторизации
+void console_interface::no_connect() {
+    cout << _MAGENTA << "Нет связи с сервером" << _CLEAR << endl;
+}

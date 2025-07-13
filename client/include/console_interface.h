@@ -52,6 +52,9 @@ public:
 
     //отобразить авторизации
     Menu_go_in_Chat show_menu_authorization() override;
+
+    //отобразить авторизации
+    void no_connect() override;
 };
 
 

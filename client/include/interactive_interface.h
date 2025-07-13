@@ -44,5 +44,8 @@ public:
 
     //отобразить авторизации
     virtual Menu_go_in_Chat show_menu_authorization() = 0;
+
+    //отобразить авторизации
+    virtual void no_connect() = 0;
 };
 
