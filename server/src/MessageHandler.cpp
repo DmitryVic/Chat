@@ -8,6 +8,7 @@
 #include <variant>
 #include <memory>
 #include "Core.h"
+#include <utility>
 
 
 bool MessageHandler::handleNext(const std::shared_ptr<Message>& message) {
@@ -315,36 +316,3 @@ bool HandlerErr::handle(const std::shared_ptr<Message>& message) {
     
     return true;
 }
-
-
-
-
-
-//
-//             
-//            
-//             case 7: {
-//                 // Запрос юзера получить свое имя
-                
-//                 auto m7 = std::dynamic_pointer_cast<Message7>(msg);
-//                 //получаем пользователя и проверяем на nullptr
-//                 std::shared_ptr<User> user = BD_search_User(m7->my_login);
-
-//                 //есть ли пользователь в базе и логин залогированного пользователя?
-//                 if (user && online_user_login == m7->my_login)
-//                 {
-//                     // Отправляем ответ
-//                     Message56 mess_class;
-//                     mess_class.my_name = user->getName();
-//                     json mess_json;
-//                     mess_class.to_json(mess_json);
-//                     std::string mess_push = mess_json.dump();
-        
-//                     send(client_sock, mess_push.c_str(), mess_push.size(), 0);
-//                     break;
-//                 }
-                
-//                 // Отправляем ответ об ошибке
-//                 srandart_answer(false, client_sock);
-//                 break;
-//             }

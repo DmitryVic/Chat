@@ -123,7 +123,7 @@ public:
 
 
         // Загрузить историю общего чата: пары <login, сообщение>
-        bool load_Chat_H(std::vector<std::pair<std::string, std::string>>& out);
+        bool load_Chat_H(std::vector<std::pair<std::string, std::string>>& out) override;
 
 };
 
