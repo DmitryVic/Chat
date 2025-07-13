@@ -55,6 +55,9 @@ public:
 
     //отобразить авторизации
     void no_connect() override;
+
+    //для отображения системных сообщений
+    void display_message(const std::string& info) override;
 };
 
 

@@ -47,5 +47,8 @@ public:
 
     //отобразить авторизации
     virtual void no_connect() = 0;
+
+    //для отображения системных сообщений
+    virtual void display_message(const  std::string& info) = 0;
 };
 

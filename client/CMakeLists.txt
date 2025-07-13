@@ -4,6 +4,8 @@
 add_executable(chat_client
     src/main.cpp
     src/NetworkClient.cpp
+    src/MessageHandler.cpp
+    src/console_interface.cpp
 )
 
 # линкует клиентский исполняемый файл с общей библиотекой
