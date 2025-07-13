@@ -3,30 +3,34 @@
 #include "NetworkClient.h"
 #include <nlohmann/json.hpp>
 #include <string>
-
 #include <memory>
 
+class interaction_chat;
 
-// Базовый класс обработчика - метод цепочки ответственности
 class MessageHandler {
 protected:
     std::shared_ptr<NetworkClient> _network;
-    //Паттерн Цепочка ответственности каждый будет пытаться обработать, но сможет только 1
-    std::unique_ptr<MessageHandler> _next;
+    std::shared_ptr<interaction_chat> _interaction_chat;
+    std::shared_ptr<MessageHandler> _next;
    
 public:
-    explicit MessageHandler(std::shared_ptr<NetworkClient> network)
-        : _network(network), _next(nullptr) {}
+    explicit MessageHandler(std::shared_ptr<NetworkClient> network, 
+                            std::shared_ptr<interaction_chat> interaction_chat);
     
     virtual ~MessageHandler() = default;
     
-    void setNext(std::unique_ptr<MessageHandler> next) {
-        _next = std::move(next);
+    void setNext(std::shared_ptr<MessageHandler> next) {
+        _next = next;
     }
     
     virtual bool handle(const std::shared_ptr<Message>& message) = 0;
     
     bool handleNext(const std::shared_ptr<Message>& message);
+    
+    // Новый метод для установки interaction_chat
+    void setInteractionChat(std::shared_ptr<interaction_chat> chat) {
+        _interaction_chat = chat;
+    }
 };
 
 
@@ -37,6 +41,10 @@ public:
     using MessageHandler::MessageHandler;
     
     bool handle(const std::shared_ptr<Message>& message) override;
+
+    void setInteractionChat(std::shared_ptr<interaction_chat> chat) {
+        _interaction_chat = chat;
+    }
 };
 
 
@@ -97,4 +105,8 @@ public:
     using MessageHandler::MessageHandler;
     
     bool handle(const std::shared_ptr<Message>& message) override;
+        
+    void setInteractionChat(std::shared_ptr<interaction_chat> chat) {
+        _interaction_chat = chat;
+    }
 };

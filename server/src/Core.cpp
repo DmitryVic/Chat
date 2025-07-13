@@ -42,15 +42,11 @@ void chat_start(std::shared_ptr<DataBase> db,
             std::string json_str = network->getMess();
             auto msg = parse_message(json_str);
             
-            if (!msg) {
+            if (!msg)
                 throw  std::runtime_error("Ошибка в полученых данных от пользователя, закрываю соединение...");
-                
-                continue;
-            }
             
-            if (!Handler1->handle(msg)) {
+            if (!Handler1->handle(msg))
                 throw  std::runtime_error("Ошибка в обработке данных, закрываю соединение...");
-            }
             
         } catch (const std::exception& e) {
             std::cerr << e.what();

@@ -26,6 +26,14 @@ public:
     // Получить проль не безопасный
     std::string getPass() const;
 
+    // Задать логин
+    void setLogin(std::string& login);
+
+    // Задать имя
+    void setName(std::string& name);
+
+    // Задать проль не безопасный
+    void setPass(std::string& pasword);
 };
 
 

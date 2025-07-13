@@ -5,40 +5,53 @@
 #include <string>
 #include <variant>
 #include <memory>
+#include "interaction_chat.h"
+#include "UserStatus.h"
+#include "MessageHandler.h"
+#include "interaction_chat.h" // Теперь включаем здесь
 
+MessageHandler::MessageHandler(std::shared_ptr<NetworkClient> network, 
+                               std::shared_ptr<interaction_chat> interaction_chat)
+    : _network(network), _interaction_chat(interaction_chat), _next(nullptr) 
+{
+}
 
 bool MessageHandler::handleNext(const std::shared_ptr<Message>& message) {
     if (_next) return _next->handle(message);
     return false;
 }
 
-// // Обработка для Message1 (авторицация)
-// bool HandlerMessage1::handle(const std::shared_ptr<Message>& message) {
-//     // Проверяем, наше ли это сообщение
-//     if (message->getTupe() != 1) {
-//         // Не наше - передаем следующему в цепочке
-//         return handleNext(message);
-//     }
-//     //обрабатываем
-//     auto m1 = std::dynamic_pointer_cast<Message1>(message);
+// Обработка для Message50 (авторизован или ошибка)
+bool HandlerMessage50::handle(const std::shared_ptr<Message>& message) {
+    // Проверяем, наше ли это сообщение
+    if (message->getTupe() != 50) {
+        // Не наше - передаем следующему в цепочке
+        return handleNext(message);
+    }
+    //обрабатываем
+    auto m50 = std::dynamic_pointer_cast<Message50>(message);
     
-//     // Логика обработки
-//     std::shared_ptr<User> user = _db->search_User(m1->login);
+    if (m50->status_request)
+    {
+        this->_interaction_chat->setMenu_go_in_Chat(Menu_go_in_Chat::AUTHORIZATION);
+    }
+    else
+    {
+        this->_interaction_chat->setMenu_go_in_Chat(Menu_go_in_Chat::VOID_REG);
+    }
+    return true;
+}
 
-//     bool authSuccess = user && (hashPassword(m1->pass) == user->getPass());
-//     //Фиксация авторизации
-//     if (authSuccess)
-//         online_user_login = user->getLogin();
-    
-
-//     // Формируем ответ
-//     Message50 response;
-//     response.status_request = authSuccess;
-    
-//     // Отправляем ответ через сеть
-//     json j;
-//     response.to_json(j);
-//     _network->sendMess(j.dump());
-    
-//     return true;  // Сообщение обработано
-// }
+// Обработка для Message50 (авторизован или ошибка)
+bool HandlerMessage56::handle(const std::shared_ptr<Message>& message) {
+    // Проверяем, наше ли это сообщение
+    if (message->getTupe() != 56) {
+        // Не наше - передаем следующему в цепочке
+        return handleNext(message);
+    }
+    //обрабатываем
+    auto m56 = std::dynamic_pointer_cast<Message56>(message);
+    this->_interaction_chat->setMyName(m56->my_name);
+    std::cout << "Login: " << m56->my_name << std::endl;
+    return true;
+}

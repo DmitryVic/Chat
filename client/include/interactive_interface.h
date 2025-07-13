@@ -5,12 +5,8 @@
 #include <Message.h>
 #include "User.h"
 #include <memory>
+#include "UserStatus.h"
 
-enum Menu_Chat {LIST_CHAT_P, LIST_USERS, SHOW_CHAT_H, EXIT}; 
-Menu_Chat menu;
-
-enum Menu_go_in_Chat {AUTHORIZATION, REG, EXIT}; 
-Menu_go_in_Chat menu_authorization;
 
 class interactive_interface
 {

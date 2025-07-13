@@ -17,3 +17,19 @@ std::string User::getName() const{
 std::string User::getPass() const{
     return this->_pasword;
 }
+
+
+// Задать логин
+void User::setLogin(std::string& login){
+    this->_login = login;
+}
+
+// Задать имя
+void User::setName(std::string& name){
+        this->_name = name;
+}
+
+// Задать проль не безопасный
+void User::setPass(std::string& pasword){
+    this->_pasword = pasword;
+}

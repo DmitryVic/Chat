@@ -1,0 +1,10 @@
+#pragma once
+
+
+
+enum Menu_Chat {LIST_CHAT_P, LIST_USERS, SHOW_CHAT_H, EXIT, VOID}; 
+
+
+enum Menu_go_in_Chat {AUTHORIZATION, REG, EXIT_PROGRAMM, AUTHORIZATION_SUCCESSFUL, VOID_REG}; 
+
+

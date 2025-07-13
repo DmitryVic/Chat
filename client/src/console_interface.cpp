@@ -299,7 +299,7 @@ Menu_go_in_Chat console_interface::show_menu_authorization() {
         std::getline(std::cin, menu);
         if (menu == "0")
         {
-            return Menu_go_in_Chat::EXIT;
+            return Menu_go_in_Chat::EXIT_PROGRAMM;
         }
         else if (menu == "1")
         {
@@ -325,6 +325,6 @@ void console_interface::no_connect() {
 
 
 //для отображения системных сообщений
-void display_message(const  std::string& info) {
+void console_interface::display_message(const std::string& info) {
     cout << _GREY_BG << "\n" << info << "\n" << _CLEAR << endl;
 }
