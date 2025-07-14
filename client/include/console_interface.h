@@ -39,10 +39,10 @@ public:
         std::shared_ptr<UserStatus> status) override;
 
     // отобразить поле авторизации
-    std::shared_ptr<Message1> authorization() override;
+    std::shared_ptr<Message1> authorization(std::shared_ptr<UserStatus> status) override;
 
     // отобразить поле регистрации логин
-    std::shared_ptr<Message2> reg() override;
+    std::shared_ptr<Message2> reg(std::shared_ptr<UserStatus> status) override;
 
     // отобразить список приватных чатов
     std::pair<std::string, std::string> show_list_chat_P(std::vector<std::pair<std::string, 

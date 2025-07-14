@@ -32,7 +32,7 @@ void interaction_chat::start(){
             this->menu_chat();
             break;}
         case MENU_AUTHORIZATION::AUTHORIZATION:{
-            std::shared_ptr<Message1> mes = _II->authorization();
+            std::shared_ptr<Message1> mes = _II->authorization(_status);
             json j;
             mes->to_json(j);
             _network->sendMess(j.dump());
@@ -55,7 +55,7 @@ void interaction_chat::start(){
             // this->getMess();
             break;}
         case MENU_AUTHORIZATION::REG:{
-            std::shared_ptr<Message2> mes = _II->reg();
+            std::shared_ptr<Message2> mes = _II->reg(_status);
             json j;
             mes->to_json(j);
 

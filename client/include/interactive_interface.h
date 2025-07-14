@@ -27,10 +27,10 @@ public:
         std::shared_ptr<UserStatus> status) = 0;
 
     // отобразить поле авторизации
-    virtual  std::shared_ptr<Message1> authorization() = 0;
+    virtual  std::shared_ptr<Message1> authorization(std::shared_ptr<UserStatus> status) = 0;
 
     // отобразить поле регистрации логин
-    virtual  std::shared_ptr<Message2> reg() = 0;
+    virtual  std::shared_ptr<Message2> reg(std::shared_ptr<UserStatus> status) = 0;
 
     // отобразить список приватных чатов
     virtual  std::pair<std::string, std::string> show_list_chat_P(

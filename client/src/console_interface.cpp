@@ -112,7 +112,7 @@ std::shared_ptr<Message4> console_interface::show_chat_H(const  std::vector<std:
 
 
 // отобразить поле авторизации
-std::shared_ptr<Message1> console_interface::authorization() {
+std::shared_ptr<Message1> console_interface::authorization(std::shared_ptr<UserStatus> status) {
     std::string login;
     std::string pass;
 
@@ -127,12 +127,14 @@ std::shared_ptr<Message1> console_interface::authorization() {
     std::shared_ptr<Message1> answer = std::make_shared<Message1>();
     answer->login = login;
     answer->pass = pass;
+    status->setLogin(login);
+    status->setPass(pass);
     return answer;
 }
 
 
 // отобразить поле регистрации логин
-std::shared_ptr<Message2> console_interface::reg() {
+std::shared_ptr<Message2> console_interface::reg(std::shared_ptr<UserStatus> status) {
     std::string login;
     std::string pass;
     std::string name;
@@ -152,6 +154,9 @@ std::shared_ptr<Message2> console_interface::reg() {
     answer->login = login;
     answer->pass = pass;
     answer->name = name;
+    status->setLogin(login);
+    status->setPass(pass);
+    status->setName(name);
     return answer;
 }
 
