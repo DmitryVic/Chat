@@ -53,11 +53,11 @@ bool HandlerMessage50::handle(const std::shared_ptr<Message>& message) {
     if (m50->status_request)
     {
         _status->setMenuAuthoriz(MENU_AUTHORIZATION::AUTHORIZATION_SUCCESSFUL);
-        std::shared_ptr<Message7> mes = std::make_shared<Message7>();
-        mes->my_login = this->_status->getLogin();
-        json jj;
-        mes->to_json(jj);
-        _network->sendMess(jj.dump());
+        // std::shared_ptr<Message7> mes = std::make_shared<Message7>();
+        // mes->my_login = this->_status->getLogin();
+        // json jj;
+        // mes->to_json(jj);
+        // _network->sendMess(jj.dump());
         // this->getMess();
     }
     else
