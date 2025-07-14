@@ -91,6 +91,28 @@ void Message7::from_json(const json& j){
 }
 
 
+// обновить данные приватного чата
+void Message8::to_json(json& j) const{
+    j = {{"type", 8}, {"user_sender", user_sender}, {"user_recipient", user_recipient}};
+}
+
+// обновить данные приватного чата
+void Message8::from_json(const json& j){
+    user_sender = j.at("user_sender").get<std::string>();
+    user_recipient = j.at("user_recipient").get<std::string>();
+}
+
+
+// обновить данные общего чата
+void Message9::to_json(json& j) const{
+    j = {{"type", 9}, {"user_sender", user_sender}};
+}
+
+// обновить данные общего чата
+void Message9::from_json(const json& j){
+    user_sender = j.at("user_sender").get<std::string>();
+}
+
 
 /*=====================================
         СООБЩЕНИЯ ОТ СЕРВЕРА

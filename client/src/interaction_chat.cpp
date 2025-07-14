@@ -12,84 +12,120 @@
 using json = nlohmann::json;
 
 interaction_chat::interaction_chat(
-    std::shared_ptr<NetworkClient> network,
-    std::shared_ptr<interactive_interface> II,
-    std::shared_ptr<User> myUser,
-    std::shared_ptr<MessageHandler> hendl)
-    : _network(network), _II(II), _myUser(myUser), _hendl(hendl) 
+    std::shared_ptr<NetworkClient> network, 
+                   std::shared_ptr<interactive_interface> II, 
+                   std::shared_ptr<MessageHandler> hendl,
+                   std::shared_ptr<UserStatus> status)
+                    : _network(network), _II(II), _hendl(hendl), _status(status) 
 {
 }
 
+
 void interaction_chat::start(){
     while (true) {
-        if (this->menu_authorization == Menu_go_in_Chat::EXIT_PROGRAMM) {
-            break;
-        }
-        else if (menu_authorization == Menu_go_in_Chat::AUTHORIZATION_SUCCESSFUL) {
+        
+        switch (_status->getMenuAuthoriz())
+        {
+        case MENU_AUTHORIZATION::EXIT_PROGRAMM:
+            return;
+        case MENU_AUTHORIZATION::AUTHORIZATION_SUCCESSFUL:{
             this->menu_chat();
-            this->getMess();
-        }
-        else {
-            this->menu_authoriz();
-            this->getMess();
-        }
-    }
-}
-
-void interaction_chat::menu_authoriz() {
-    while (true) {
-        this->menu_authorization = _II->show_menu_authorization();
-
-        switch (this->menu_authorization) {
-        case Menu_go_in_Chat::AUTHORIZATION: {
-            auto my_mess = _II->authorization();
-            _myUser->setLogin(my_mess->login);
-            _myUser->setPass(my_mess->pass);
-            
+            break;}
+        case MENU_AUTHORIZATION::AUTHORIZATION:{
+            std::shared_ptr<Message1> mes = _II->authorization();
             json j;
-            my_mess->to_json(j);
+            mes->to_json(j);
             _network->sendMess(j.dump());
-            return;
-        }
-        case Menu_go_in_Chat::REG: {
-            auto my_mess = _II->reg();
-            _myUser->setLogin(my_mess->login);
-            _myUser->setPass(my_mess->pass);
-            _myUser->setName(my_mess->name);
+            this->getMess();
+
+
+
             
+            _II->display_message(j.dump());
+
+
+
+
+
+            // std::shared_ptr<Message7> mes2;
+            // mes2->my_login = this->_status->getLogin();
+            // json jj;
+            // mes->to_json(jj);
+            // _network->sendMess(jj.dump());
+            // this->getMess();
+            break;}
+        case MENU_AUTHORIZATION::REG:{
+            std::shared_ptr<Message2> mes = _II->reg();
             json j;
-            my_mess->to_json(j);
+            mes->to_json(j);
+
+
+            _II->display_message(j.dump());
+
+
             _network->sendMess(j.dump());
-            return;
-        }
+            this->getMess();
+            break;}
+        case MENU_AUTHORIZATION::VOID_REG:{
+            _II->show_menu_authorization(_status);
+            break;}
+        
         default:
-            this->menu_authorization = Menu_go_in_Chat::EXIT_PROGRAMM;
+            _status->setMenuAuthoriz(MENU_AUTHORIZATION::EXIT_PROGRAMM);
             return;
         }
     }
 }
-
 
 
 void interaction_chat::menu_chat() {
-    // Реализация меню чата
-    std::cout << "Chat menu" << std::endl;
-    //ДОПИСАТЬ МЕТОД !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    while (true) {
+        
+        if (_status->getMenuAuthoriz() != MENU_AUTHORIZATION::AUTHORIZATION_SUCCESSFUL)
+            return;
 
-
-
-
-
-
+        switch (_status->getMenuChat()) {
+            case MENU_CHAT::EXIT:
+                return;
+            case MENU_CHAT::VOID: {
+                _II->show_chat_menu(this->_status);
+                break;
+            }
+            case MENU_CHAT::SHOW_CHAT_H: {
+                //Запрос на отображение общего чата, обработчик должен открыть общий чат получив ответ сервера с обновленными
+                // данными, II поменяв MENU_CHAT в SHOW_CHAT_H или в 50 ответе поменяется на выход, что значит не верные данные
+                    std::shared_ptr<Message9> mes = std::make_shared<Message9>();
+                    mes->user_sender = this->_status->getLogin();
+                    json j;
+                    mes->to_json(j);
+                    _network->sendMess(j.dump());
+                    this->getMess();
+                break;
+            }
+            case MENU_CHAT::LIST_CHAT_P: {
+                std::shared_ptr<Message5> mes = std::make_shared<Message5>();
+                mes->my_login = this->_status->getLogin();
+                json j;
+                mes->to_json(j);
+                _network->sendMess(j.dump());
+                this->getMess();
+                break;
+            }
+            case MENU_CHAT::LIST_USERS: {
+                std::shared_ptr<Message6> mes = std::make_shared<Message6>();
+                json j;
+                mes->to_json(j);
+                _network->sendMess(j.dump());
+                this->getMess();
+                break;
+            }
+            default:
+                _status->setMenuAuthoriz(MENU_AUTHORIZATION::EXIT_PROGRAMM);
+                return;
+            }
+    }
 }
 
-void interaction_chat::setMyName(std::string& name) {
-    _myUser->setName(name);
-}
-
-void interaction_chat::setMessageHandler(std::shared_ptr<MessageHandler> handler) {
-    _hendl = handler;
-}
 
 void interaction_chat::getMess() {
     try {
@@ -98,6 +134,8 @@ void interaction_chat::getMess() {
         }
         
         std::string json_str = _network->getMess();
+        _II->display_message(json_str);
+
         auto msg = parse_message(json_str);
         
         if (!msg) {
@@ -111,8 +149,4 @@ void interaction_chat::getMess() {
         std::cerr << "Error: " << e.what() << std::endl;
         _II->display_message(e.what());
     }
-}
-
-void interaction_chat::setMenu_go_in_Chat(Menu_go_in_Chat menu) {
-    menu_authorization = menu;
 }

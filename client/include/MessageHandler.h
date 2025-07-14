@@ -4,18 +4,27 @@
 #include <nlohmann/json.hpp>
 #include <string>
 #include <memory>
+#include "UserStatus.h"
+#include "interactive_interface.h"
+#include "console_interface.h"
 
-class interaction_chat;
 
 class MessageHandler {
 protected:
     std::shared_ptr<NetworkClient> _network;
-    std::shared_ptr<interaction_chat> _interaction_chat;
     std::shared_ptr<MessageHandler> _next;
+    std::shared_ptr<interactive_interface> _II;
+    std::shared_ptr<UserStatus> _status;
    
 public:
-    explicit MessageHandler(std::shared_ptr<NetworkClient> network, 
-                            std::shared_ptr<interaction_chat> interaction_chat);
+    // MessageHandler(std::shared_ptr<NetworkClient> network, 
+    //                         std::shared_ptr<interactive_interface> II,
+    //                         std::shared_ptr<UserStatus> status);
+    MessageHandler(
+    std::shared_ptr<NetworkClient> network, 
+    std::shared_ptr<interactive_interface> II,
+    std::shared_ptr<UserStatus> status
+) : _network(network), _II(II), _status(status), _next(nullptr) {};
     
     virtual ~MessageHandler() = default;
     
@@ -26,11 +35,9 @@ public:
     virtual bool handle(const std::shared_ptr<Message>& message) = 0;
     
     bool handleNext(const std::shared_ptr<Message>& message);
+
+    void getMess();
     
-    // Новый метод для установки interaction_chat
-    void setInteractionChat(std::shared_ptr<interaction_chat> chat) {
-        _interaction_chat = chat;
-    }
 };
 
 
@@ -42,9 +49,6 @@ public:
     
     bool handle(const std::shared_ptr<Message>& message) override;
 
-    void setInteractionChat(std::shared_ptr<interaction_chat> chat) {
-        _interaction_chat = chat;
-    }
 };
 
 
@@ -105,8 +109,14 @@ public:
     using MessageHandler::MessageHandler;
     
     bool handle(const std::shared_ptr<Message>& message) override;
-        
-    void setInteractionChat(std::shared_ptr<interaction_chat> chat) {
-        _interaction_chat = chat;
-    }
+};
+
+
+// 
+class HandlerErr : public MessageHandler {
+public:
+    //using для наследования конструкторов базового класса
+    using MessageHandler::MessageHandler;
+    
+    bool handle(const std::shared_ptr<Message>& message) override;
 };

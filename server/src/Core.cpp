@@ -21,13 +21,17 @@ void chat_start(std::shared_ptr<DataBase> db,
     auto Handler5 = std::make_unique<HandlerMessage5>(db, network);
     auto Handler6 = std::make_unique<HandlerMessage6>(db, network);
     auto Handler7 = std::make_unique<HandlerMessage7>(db, network);
+    auto Handler8 = std::make_unique<HandlerMessage8>(db, network);
+    auto Handler9 = std::make_unique<HandlerMessage9>(db, network);
     auto messageError = std::make_unique<HandlerErr>(db, network);
 
     // Строим цепочку С КОНЦА:  В ДРУГОМ ПОРЯДКЕ НЕЛЬЗЯ move ПЕРЕДАЕТ ВЛАДЕНИЕ ПОСЛЕ 1 ПЕРЕМЕШЕНИЯ ПЕРЕДАДИМ NULLPTR 
     messageError->setNext(nullptr);  
 
-    Handler7->setNext(std::move(messageError));// Последний в цепочке messageError
+    Handler9->setNext(std::move(messageError));// Последний в цепочке messageError
     // NEW
+    Handler8->setNext(std::move(Handler9));
+    Handler7->setNext(std::move(Handler8));
     Handler6->setNext(std::move(Handler7));
     Handler5->setNext(std::move(Handler6));
     Handler4->setNext(std::move(Handler5));

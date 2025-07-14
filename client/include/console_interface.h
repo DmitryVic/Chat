@@ -6,6 +6,7 @@
 #include "User.h"
 #include <memory>
 #include "interactive_interface.h"
+#include "UserStatus.h"
 
 
 // Цветовые макросы
@@ -30,10 +31,12 @@ public:
 
     // отобразить чаты предать историю и 
     std::shared_ptr<Message3> show_chat_P(const std::vector<std::pair<std::string, std::string>>& history_chat_P, 
-        const std::string& my_User, const  std::string& friend_User) override;
+        const std::string& my_User, const  std::string& friend_User,
+        std::shared_ptr<UserStatus> status) override;
 
     std::shared_ptr<Message4> show_chat_H(const  std::vector<std::pair<std::string, std::string>>& history_chat_H, 
-        const std::string& my_User) override;
+        const std::string& my_User,
+        std::shared_ptr<UserStatus> status) override;
 
     // отобразить поле авторизации
     std::shared_ptr<Message1> authorization() override;
@@ -42,19 +45,23 @@ public:
     std::shared_ptr<Message2> reg() override;
 
     // отобразить список приватных чатов
-    std::pair<std::string, std::string> show_list_chat_P(const std::vector<std::pair<std::string, const std::string>>& list_Chat_P) override;
+    std::pair<std::string, std::string> show_list_chat_P(std::vector<std::pair<std::string, 
+        std::string>>& list_Chat_P,
+        std::shared_ptr<UserStatus> status) override;
 
     // отобразить пользователей кому написать
-    std::pair<std::string, std::string> show_list_users(const std::vector<std::pair<std::string, const std::string>>& list_Users) override;
+    std::pair<std::string, std::string> show_list_users(std::vector<std::pair<std::string, 
+        std::string>>& list_Users,
+        std::shared_ptr<UserStatus> status) override;
 
     //отобразить меню
-    Menu_Chat show_chat_menu() override;
+    void show_chat_menu(std::shared_ptr<UserStatus> status) override;
 
     //отобразить авторизации
-    Menu_go_in_Chat show_menu_authorization() override;
+    void show_menu_authorization(std::shared_ptr<UserStatus> status) override;
 
     //отобразить авторизации
-    void no_connect() override;
+    void no_connect(std::shared_ptr<UserStatus> status) override;
 
     //для отображения системных сообщений
     void display_message(const std::string& info) override;

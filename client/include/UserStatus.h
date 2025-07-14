@@ -1,10 +1,50 @@
 #pragma once
+#include "User.h"
+#include <string>
+#include <memory>
+
+enum MENU_CHAT {LIST_CHAT_P, LIST_USERS, EXIT, SHOW_CHAT_H, SHOW_CHAT_P, VOID}; 
+
+
+enum MENU_AUTHORIZATION {EXIT_PROGRAMM, AUTHORIZATION, REG, AUTHORIZATION_SUCCESSFUL, VOID_REG}; 
 
 
 
-enum Menu_Chat {LIST_CHAT_P, LIST_USERS, SHOW_CHAT_H, EXIT, VOID}; 
 
+class UserStatus
+{
+private:
+    MENU_CHAT menu_chat = MENU_CHAT::VOID;
+    MENU_AUTHORIZATION menu_authoriz = MENU_AUTHORIZATION::VOID_REG;
+    User myUser;
+    // std::shared_ptr<Message> message = nullptr;
+    // int typeMessage = 0;
 
-enum Menu_go_in_Chat {AUTHORIZATION, REG, EXIT_PROGRAMM, AUTHORIZATION_SUCCESSFUL, VOID_REG}; 
+public:
+    UserStatus();
+    ~UserStatus() = default;
+
+    void setMenuChat(MENU_CHAT menu_chat);
+    MENU_CHAT getMenuChat() const;
+
+    void setMenuAuthoriz(MENU_AUTHORIZATION menu_authoriz);
+    MENU_AUTHORIZATION getMenuAuthoriz() const;
+
+    void setLogin(std::string login);
+    std::string getLogin() const;
+
+    void setPass(std::string pass);
+    std::string getPass() const;
+
+    void setName(std::string Name);
+    std::string getName() const;
+
+    int getMessageType() const;
+    void setMessType(int type);
+    
+    // std::shared_ptr<Message> getMessage() const;
+    // void setMess(std::shared_ptr<Message> message);
+};
+
 
 

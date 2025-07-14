@@ -303,6 +303,102 @@ bool HandlerMessage7::handle(const std::shared_ptr<Message>& message){
 }
 
 
+// Обработчик для Message8 (обновить данные приватного чата)
+bool HandlerMessage8::handle(const std::shared_ptr<Message>& message){
+    if (message->getTupe() != 8) {
+        return handleNext(message);
+    }
+    
+    auto m8 = std::dynamic_pointer_cast<Message8>(message);
+    std::shared_ptr<User> user_sender = _db->search_User(m8->user_sender);
+    std::shared_ptr<User> user_recipient = _db->search_User(m8->user_recipient);
+    
+    if (user_sender == nullptr || user_recipient == nullptr)
+    {
+        std::cerr << "ошибка бд: "  << std::endl;
+        //Error: Не верные данные авторизации авторизованного юзера (сообщение 3)
+        // Отправляем ответ об ошибке
+        Message50 response;
+        response.status_request = false;
+        json j;
+        response.to_json(j);
+        _network->sendMess(j.dump());
+        throw std::runtime_error("HandlerMessage3: Закрываю соединение...");
+    }
+
+    if(online_user_login !=  user_sender->getLogin()){
+        std::cerr << "Пользователь присылает не верные данные или он не авторизован"  << std::endl;
+        //Error: Попытка получить ответ не авторизованного юзера (сообщение 3)"
+        // Отправляем ответ об ошибке
+        Message50 response;
+        response.status_request = false;
+        json j;
+        response.to_json(j);
+        _network->sendMess(j.dump());
+        throw std::runtime_error("HandlerMessage3: Закрываю соединение...");
+    }
+
+    std::vector<std::pair<std::string, std::string>> history_chat_P; 
+    _db->load_Chat_P(user_sender, user_recipient, history_chat_P);
+
+    // Отправляем ответ
+    Message52 mess_class;
+    mess_class.history_chat_P = history_chat_P;
+    json mess_json;
+    json j;
+    mess_class.to_json(j);
+    _network->sendMess(j.dump());
+    
+    return true;
+}
+
+
+// Обработчик для Message9 (обновить данные общего чата)
+bool HandlerMessage9::handle(const std::shared_ptr<Message>& message){
+    
+    if (message->getTupe() != 9) {
+        return handleNext(message);
+    }
+
+    auto m9 = std::dynamic_pointer_cast<Message4>(message);
+    std::shared_ptr<User> user_sender = _db->search_User(m9->user_sender);
+    
+    if (user_sender == nullptr)
+    {
+        std::cerr << "Error: Не верные данные авторизации авторизованного юзера (сообщение 4)";
+        // Отправляем ответ об ошибке
+        Message50 response;
+        response.status_request = false;
+        json j;
+        response.to_json(j);
+        _network->sendMess(j.dump());
+        throw std::runtime_error("HandlerMessage4: Закрываю соединение...");
+    }
+
+    if(online_user_login !=  user_sender->getLogin()){
+        std::cerr << "Пользователь присылает не верные данные или он не авторизован"  << std::endl;
+        // Отправляем ответ об ошибке
+        Message50 response;
+        response.status_request = false;
+        json j;
+        response.to_json(j);
+        _network->sendMess(j.dump());
+        throw std::runtime_error("HandlerMessage4: Закрываю соединение...");
+    }
+
+    std::vector<std::pair<std::string, std::string>> history_chat_H; 
+    _db->load_Chat_H(history_chat_H);
+    
+    // Отправляем ответ
+    Message51 mess_class;
+    mess_class.history_chat_H = history_chat_H;
+    json mess_json;
+    mess_class.to_json(mess_json);
+    _network->sendMess(mess_json.dump());
+    return true;
+}
+
+
 // Обработчик для неизвестных сообщений
 bool HandlerErr::handle(const std::shared_ptr<Message>& message) {
     std::cerr << "Неизвестный тип сообщения: " << message->getTupe() << std::endl;

@@ -98,6 +98,23 @@ public:
     bool handle(const std::shared_ptr<Message>& message) override;
 };
 
+// Обработчик для Message8 (обновить данные приватного чата)
+class HandlerMessage8 : public MessageHandler {
+public:
+    using MessageHandler::MessageHandler;
+    
+    bool handle(const std::shared_ptr<Message>& message) override;
+};
+
+
+// Обработчик для Message9 (обновить данные общего чата)
+class HandlerMessage9 : public MessageHandler {
+public:
+    using MessageHandler::MessageHandler;
+    
+    bool handle(const std::shared_ptr<Message>& message) override;
+};
+
 
 // Обработчик для неизвестных сообщений
 class HandlerErr : public MessageHandler {

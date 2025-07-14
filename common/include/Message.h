@@ -128,6 +128,32 @@ public:
 };
 
 
+// обновить данные приватного чата
+class Message8 : public Message {
+public:
+    std::string user_sender;
+    std::string user_recipient;
+    
+    int getTupe() const override { return 8; }
+    
+    void to_json(json& j) const override;
+    
+    void from_json(const json& j) override;
+};
+
+
+// обновить данные общего чата
+class Message9 : public Message {
+public:
+    std::string user_sender;
+    
+    int getTupe() const override { return 9; }
+    
+    void to_json(json& j) const override;
+    
+    void from_json(const json& j) override;
+};
+
 /*=====================================
         СООБЩЕНИЯ ОТ СЕРВЕРА
 =====================================*/
@@ -165,6 +191,7 @@ public:
 class Message52 : public Message {
 public:
     std::vector<std::pair<std::string, std::string>> history_chat_P;
+    
     
     int getTupe() const override { return 52; }
     

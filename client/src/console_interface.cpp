@@ -24,7 +24,8 @@ console_interface::~console_interface()
 
 // отобразить чат P
 std::shared_ptr<Message3> console_interface::show_chat_P(const std::vector<std::pair<std::string, std::string>>& history_chat_P, 
-    const std::string& my_User, const  std::string& friend_User){
+    const std::string& my_User, const  std::string& friend_User,
+    std::shared_ptr<UserStatus> status){
         
     std::string userInput; // Вводимое пользователем знначение
     if (history_chat_P.empty())
@@ -55,17 +56,21 @@ std::shared_ptr<Message3> console_interface::show_chat_P(const std::vector<std::
     answer->user_recipient = friend_User;
     if (userInput != "/exit"){
         answer->mess = userInput;
+        status->setMenuChat(MENU_CHAT::SHOW_CHAT_P);
     }
     else
     {
         answer->mess = "";
+        status->setMenuChat(MENU_CHAT::LIST_CHAT_P);
     }
     return answer;
 }
 
 // отобразить чат H
-std::shared_ptr<Message4> console_interface::show_chat_H(const  std::vector<std::pair<std::string, std::string>>& history_chat_H, 
-    const std::string& my_User){
+std::shared_ptr<Message4> console_interface::show_chat_H(const  std::vector<std::pair<std::string, 
+    std::string>>& history_chat_H, 
+    const std::string& my_User,
+    std::shared_ptr<UserStatus> status){
                 
         std::string userInput; // Вводимое пользователем знначение
         if (history_chat_H.empty())
@@ -95,10 +100,12 @@ std::shared_ptr<Message4> console_interface::show_chat_H(const  std::vector<std:
         answer->user_sender = my_User;
         if (userInput != "/exit"){
             answer->mess = userInput;
+            status->setMenuChat(MENU_CHAT::SHOW_CHAT_H);
         }
         else
         {
             answer->mess = "";
+            status->setMenuChat(MENU_CHAT::VOID);
         }
         return answer;
 }
@@ -150,8 +157,11 @@ std::shared_ptr<Message2> console_interface::reg() {
 
 
 // отобразить список приватных чатов
-std::pair<std::string, std::string> console_interface::show_list_chat_P(const std::vector<std::pair<std::string, const std::string>>& list_Chat_P) {
-
+std::pair<std::string, std::string> console_interface::show_list_chat_P(
+    std::vector<std::pair<std::string, std::string>>& list_Chat_P,
+    std::shared_ptr<UserStatus> status) {
+    
+    status->setMenuChat(MENU_CHAT::SHOW_CHAT_P);
     size_t userNamberInput = 9999;                                    // для получения номера пользователя и открытия чата
     
     while (true)
@@ -183,23 +193,30 @@ std::pair<std::string, std::string> console_interface::show_list_chat_P(const st
         }
 
         if (userNamberInput == 0){
+            status->setMenuChat(MENU_CHAT::VOID);
             return {};
         }
         else if (userNamberInput > list_Chat_P.size())
         {
             cout << _YELLOW << "Ошибка: введите номер чата или 0 для выхода." << _CLEAR << endl;
+            status->setMenuChat(MENU_CHAT::SHOW_CHAT_P);
         }
         else
         {
+            status->setMenuChat(MENU_CHAT::SHOW_CHAT_P);
             return list_Chat_P[userNamberInput - 1];
         }
     }
+
 }
 
 
 // отобразить пользователей кому написать
-std::pair<std::string, std::string> console_interface::show_list_users(const std::vector<std::pair<std::string, const std::string>>& list_Users) {
-    
+std::pair<std::string, std::string> console_interface::show_list_users(std::vector<std::pair<std::string, 
+    std::string>>& list_Users,
+    std::shared_ptr<UserStatus> status) {
+
+    status->setMenuChat(MENU_CHAT::LIST_USERS);
     size_t userNamberInput = 9999;                                    // для получения номера пользователя и открытия чата
     
     while (true)
@@ -231,14 +248,17 @@ std::pair<std::string, std::string> console_interface::show_list_users(const std
         }
 
         if (userNamberInput == 0){
+            status->setMenuChat(MENU_CHAT::VOID);
             return {};
         }
         else if (userNamberInput > list_Users.size())
         {
             cout << _YELLOW << "Ошибка: введите номер чата или 0 для выхода." << _CLEAR << endl;
+            status->setMenuChat(MENU_CHAT::LIST_USERS);
         }
         else
         {
+            status->setMenuChat(MENU_CHAT::LIST_USERS);
             return list_Users[userNamberInput - 1];
         }
     }
@@ -246,7 +266,7 @@ std::pair<std::string, std::string> console_interface::show_list_users(const std
 
 
 //отобразить меню
-Menu_Chat console_interface::show_chat_menu(){
+void console_interface::show_chat_menu(std::shared_ptr<UserStatus> status){
     std::string menu;
 
     while (true)
@@ -261,19 +281,23 @@ Menu_Chat console_interface::show_chat_menu(){
         std::getline(std::cin, menu);
         if (menu == "0")
         {
-            return Menu_Chat::EXIT;
+            status->setMenuChat(MENU_CHAT::EXIT);
+            return;
         }
         else if (menu == "1")
         {
-            return Menu_Chat::LIST_CHAT_P;
+            status->setMenuChat(MENU_CHAT::LIST_CHAT_P);
+            return;
         }
         else if (menu == "2")
         {
-            return Menu_Chat::LIST_USERS;
+            status->setMenuChat(MENU_CHAT::LIST_USERS);
+            return;
         }
         else if (menu == "3")
         {
-            return Menu_Chat::SHOW_CHAT_H;
+            status->setMenuChat(MENU_CHAT::SHOW_CHAT_H);
+            return;
         }
         else
         {
@@ -284,7 +308,7 @@ Menu_Chat console_interface::show_chat_menu(){
 
 
 //отобразить авторизации
-Menu_go_in_Chat console_interface::show_menu_authorization() {
+void console_interface::show_menu_authorization(std::shared_ptr<UserStatus> status) {
     std::string menu;
 
     while (true)
@@ -299,15 +323,18 @@ Menu_go_in_Chat console_interface::show_menu_authorization() {
         std::getline(std::cin, menu);
         if (menu == "0")
         {
-            return Menu_go_in_Chat::EXIT_PROGRAMM;
+            status->setMenuAuthoriz(MENU_AUTHORIZATION::EXIT_PROGRAMM);
+            return;
         }
         else if (menu == "1")
         {
-            return Menu_go_in_Chat::AUTHORIZATION;
+            status->setMenuAuthoriz(MENU_AUTHORIZATION::AUTHORIZATION);
+            return;
         }
         else if (menu == "2")
         {
-            return Menu_go_in_Chat::REG;
+            status->setMenuAuthoriz(MENU_AUTHORIZATION::REG);
+            return;
         }
         else
         {
@@ -319,8 +346,9 @@ Menu_go_in_Chat console_interface::show_menu_authorization() {
 
 
 //отобразить авторизации
-void console_interface::no_connect() {
+void console_interface::no_connect(std::shared_ptr<UserStatus> status) {
     cout << _MAGENTA << "Нет связи с сервером" << _CLEAR << endl;
+    status->setMenuAuthoriz(MENU_AUTHORIZATION::EXIT_PROGRAMM);
 }
 
 
