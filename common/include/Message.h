@@ -191,7 +191,8 @@ public:
 class Message52 : public Message {
 public:
     std::vector<std::pair<std::string, std::string>> history_chat_P;
-    
+    std::pair<std::string, std::string> login_name_friend;
+    std::pair<std::string, std::string> login_name_MY;
     
     int getTupe() const override { return 52; }
     

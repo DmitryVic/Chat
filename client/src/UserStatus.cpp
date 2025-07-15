@@ -3,6 +3,7 @@
 #include <string>
 #include "MessageHandler.h"
 #include <memory>
+#include "Message.h"
 
 
 
@@ -60,22 +61,30 @@ std::string UserStatus::getName() const{
 }
 
 
-// int UserStatus::getMessageType() const{
-//     return this->typeMessage;
-// }
+int UserStatus::getMessageType() const{
+    return this->typeMessage;
+}
 
 
-// void UserStatus::setMessType(int type){
-//     this->typeMessage = type;
-// }
+void UserStatus::setMessType(int type){
+    this->typeMessage = type;
+}
 
 
-// std::shared_ptr<Message> UserStatus::getMessage() const{
-//     return this->message;
-// }
+std::shared_ptr<Message> UserStatus::getMessage() const{
+    return this->message;
+}
 
 
-// void UserStatus::setMess(std::shared_ptr<Message> message){
-//     this->message = message;
-// }
+void UserStatus::setMess(std::shared_ptr<Message> message){
+    this->message = message;
+}
 
+
+bool UserStatus::get_message_status() const{
+    return this->message_status;
+}
+
+void UserStatus::set_message_status(bool message_status){
+    message_status = message_status;
+}

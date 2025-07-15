@@ -143,12 +143,14 @@ void Message51::from_json(const json& j){
 
 // Передача данных приватного чата
 void Message52::to_json(json& j) const{
-    j = {{"type", 52}, {"history_chat_P", history_chat_P}};
+    j = {{"type", 52}, {"history_chat_P", history_chat_P}, {"login_name_friend", login_name_friend}, {"login_name_MY", login_name_MY}};
 }
 
 // Передача данных приватного чата
 void Message52::from_json(const json& j){
     history_chat_P = j.at("history_chat_P").get<std::vector<std::pair<std::string, std::string>>>();
+    login_name_friend = j.at("login_name_friend").get<std::pair<std::string, std::string>>(); 
+    login_name_MY = j.at("login_name_MY").get<std::pair<std::string, std::string>>(); 
 }
 
 
@@ -204,6 +206,8 @@ std::unique_ptr<Message> Message::create(int type) {
         case 5: return std::make_unique<Message5>();
         case 6: return std::make_unique<Message6>();
         case 7: return std::make_unique<Message7>();
+        case 8:  return std::make_unique<Message8>();
+        case 9: return std::make_unique<Message9>();
         case 50: return std::make_unique<Message50>();
         case 51: return std::make_unique<Message51>();
         case 52: return std::make_unique<Message52>();

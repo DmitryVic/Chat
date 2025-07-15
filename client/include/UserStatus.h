@@ -2,6 +2,7 @@
 #include "User.h"
 #include <string>
 #include <memory>
+#include "Message.h"
 
 enum MENU_CHAT {LIST_CHAT_P, LIST_USERS, EXIT, SHOW_CHAT_H, SHOW_CHAT_P, VOID}; 
 
@@ -17,8 +18,10 @@ private:
     MENU_CHAT menu_chat = MENU_CHAT::VOID;
     MENU_AUTHORIZATION menu_authoriz = MENU_AUTHORIZATION::VOID_REG;
     User myUser;
-    // std::shared_ptr<Message> message = nullptr;
-    // int typeMessage = 0;
+
+    bool message_status = false;
+    std::shared_ptr<Message> message = nullptr;
+    int typeMessage = 0;
 
 public:
     UserStatus();
@@ -41,9 +44,12 @@ public:
 
     int getMessageType() const;
     void setMessType(int type);
+
+    bool get_message_status() const;
+    void set_message_status(bool message_status);
     
-    // std::shared_ptr<Message> getMessage() const;
-    // void setMess(std::shared_ptr<Message> message);
+    std::shared_ptr<Message> getMessage() const;
+    void setMess(std::shared_ptr<Message> message);
 };
 
 

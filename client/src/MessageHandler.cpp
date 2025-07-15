@@ -4,6 +4,7 @@
 #include <nlohmann/json.hpp>
 #include <string>
 #include <variant>
+#include <utility>
 #include <memory>
 #include "interaction_chat.h"
 #include "UserStatus.h"
@@ -24,13 +25,17 @@ void MessageHandler::getMess(){
         if (!msg) {
             throw std::runtime_error("Неверное сообщение с сервера");
         }
-        
+        ///////////////////////////////////////////////////////////////////////////////////////
+        std::cerr << "MessageHandler::getMess" << std::endl;
+        _II->display_message(json_str);
         std::cerr << "Обработка сообщения в MessageHandler::getMess" << std::endl;
+        ///////////////////////////////////////////////////////////////////////////////////////
         this->handle(msg);
         
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
         _II->display_message(e.what());
+        _status->setMenuAuthoriz(MENU_AUTHORIZATION::EXIT_PROGRAMM);
     }
 }
 
@@ -62,7 +67,7 @@ bool HandlerMessage50::handle(const std::shared_ptr<Message>& message) {
     }
     else
     {
-    _status->setMenuAuthoriz(MENU_AUTHORIZATION::VOID_REG);
+    _status->setMenuAuthoriz(MENU_AUTHORIZATION::EXIT_PROGRAMM);
     _status->setMenuChat(MENU_CHAT::VOID);
     _status->setLogin("");
     _status->setPass("");
@@ -111,7 +116,9 @@ bool HandlerMessage52::handle(const std::shared_ptr<Message>& message) {
     }
     //обрабатываем
     auto m52 = std::dynamic_pointer_cast<Message52>(message);
-    std::shared_ptr<Message3> data = _II->show_chat_P(m52->history_chat_P, _status->getName(), "Доработать в status", _status);
+    _status->setMenuChat(MENU_CHAT::SHOW_CHAT_P);
+    std::pair<std::string, std::string> fr_Us = m52->login_name_friend;
+    std::shared_ptr<Message3> data = _II->show_chat_P(m52->history_chat_P, _status->getName(), fr_Us.second, _status);
 
     if ( data->mess == "")
     {
@@ -122,6 +129,8 @@ bool HandlerMessage52::handle(const std::shared_ptr<Message>& message) {
         std::shared_ptr<Message3> mes = std::make_shared<Message3>();
         mes->user_sender = this->_status->getLogin();
         mes->mess = data->mess;
+        mes->user_recipient = fr_Us.second;
+        // В ПРОТОКОЛ НУЖНО ДОБАВИТЬ ЛОГИН СОБЕСЕДНИКА 
         json jj;
         mes->to_json(jj);
         _network->sendMess(jj.dump());
@@ -180,11 +189,11 @@ bool HandlerMessage54::handle(const std::shared_ptr<Message>& message) {
     auto m54 = std::dynamic_pointer_cast<Message54>(message);
     //ответ и открытие чата
     std::pair<std::string, std::string> data = _II->show_list_users(m54->list_Users, _status);
-    if ( data.first == "" || data.second == "")
-    {
-        _status->setMenuChat(MENU_CHAT::VOID);
-    }
-    else{
+    // if ( data.first == "" || data.second == "")
+    // {
+    //     _status->setMenuChat(MENU_CHAT::VOID);
+    // }
+    // else{
         std::shared_ptr<Message8> mes = std::make_shared<Message8>();
         mes->user_sender = this->_status->getLogin();
         mes->user_recipient = data.first;
@@ -192,7 +201,7 @@ bool HandlerMessage54::handle(const std::shared_ptr<Message>& message) {
         mes->to_json(jj);
         _network->sendMess(jj.dump());
         this->getMess();
-    }
+    // }
     return true;
 }
 
@@ -226,7 +235,7 @@ bool HandlerMessage56::handle(const std::shared_ptr<Message>& message) {
     }
     //обрабатываем
     auto m56 = std::dynamic_pointer_cast<Message56>(message);
-    this->_status->setLogin(m56->my_name);
+    this->_status->setName(m56->my_name);
     std::string hi = m56->my_name;
     hi += ", здраствуйте!";
     _II->display_message(hi);
