@@ -4,6 +4,14 @@
 #include <memory>
 #include "Message.h"
 
+
+/*
+
+ОСНОВНАЯ ЗАДАЧА UserStatus ХРАНИТЬ ИНФОРМАЦИЮ О ТЕКУЩЕМ СТАТУСЕ КЛИЕНТА
+ПРЕДОСТАВЛЯЯ ОСТАЛЬНЫМ КОМПОНЕНТАМ МЕНЯТЬ И ПОЛУЧАТЬ ЗНАЧЕНИЯ
+
+*/
+
 enum MENU_CHAT {LIST_CHAT_P, LIST_USERS, EXIT, SHOW_CHAT_H, SHOW_CHAT_P, VOID}; 
 
 

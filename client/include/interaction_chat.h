@@ -15,7 +15,11 @@ private:
     std::shared_ptr<MessageHandler> _hendl;
     std::shared_ptr<UserStatus> _status;
     void menu_chat();
-
+    void getMess();
+    void chat_H();
+    void list_user();
+    void list_chat_P();
+    void chat_P();
 public:
     interaction_chat(std::shared_ptr<NetworkClient> network, 
                    std::shared_ptr<interactive_interface> II, 
@@ -25,5 +29,5 @@ public:
     ~interaction_chat() = default;
     
     void start();
-    void getMess();
+    
 };

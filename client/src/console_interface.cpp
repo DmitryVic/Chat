@@ -254,7 +254,7 @@ std::pair<std::string, std::string> console_interface::show_list_users(std::vect
 
         if (userNamberInput == 0){
             status->setMenuChat(MENU_CHAT::VOID);
-            return {};
+            return {{},{}};
         }
         else if (userNamberInput > list_Users.size())
         {

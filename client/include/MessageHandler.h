@@ -35,8 +35,6 @@ public:
     virtual bool handle(const std::shared_ptr<Message>& message) = 0;
     
     bool handleNext(const std::shared_ptr<Message>& message);
-
-    void getMess();
     
 };
 

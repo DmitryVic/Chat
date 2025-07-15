@@ -85,6 +85,7 @@ bool UserStatus::get_message_status() const{
     return this->message_status;
 }
 
+// Сообщение существует?
 void UserStatus::set_message_status(bool message_status){
-    message_status = message_status;
+    this->message_status = message_status;
 }

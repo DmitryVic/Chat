@@ -16,28 +16,28 @@
 // {
 // }
 
-void MessageHandler::getMess(){
-    try {
+// void MessageHandler::getMess(){
+//     try {
        
-        std::string json_str = _network->getMess();
-        auto msg = parse_message(json_str);
+//         std::string json_str = _network->getMess();
+//         auto msg = parse_message(json_str);
         
-        if (!msg) {
-            throw std::runtime_error("Неверное сообщение с сервера");
-        }
-        ///////////////////////////////////////////////////////////////////////////////////////
-        std::cerr << "MessageHandler::getMess" << std::endl;
-        _II->display_message(json_str);
-        std::cerr << "Обработка сообщения в MessageHandler::getMess" << std::endl;
-        ///////////////////////////////////////////////////////////////////////////////////////
-        this->handle(msg);
+//         if (!msg) {
+//             throw std::runtime_error("Неверное сообщение с сервера");
+//         }
+//         ///////////////////////////////////////////////////////////////////////////////////////
+//         std::cerr << "MessageHandler::getMess" << std::endl;
+//         _II->display_message(json_str);
+//         std::cerr << "Обработка сообщения в MessageHandler::getMess" << std::endl;
+//         ///////////////////////////////////////////////////////////////////////////////////////
+//         this->handle(msg);
         
-    } catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
-        _II->display_message(e.what());
-        _status->setMenuAuthoriz(MENU_AUTHORIZATION::EXIT_PROGRAMM);
-    }
-}
+//     } catch (const std::exception& e) {
+//         std::cerr << "Error: " << e.what() << std::endl;
+//         _II->display_message(e.what());
+//         _status->setMenuAuthoriz(MENU_AUTHORIZATION::EXIT_PROGRAMM);
+//     }
+// }
 
 bool MessageHandler::handleNext(const std::shared_ptr<Message>& message) {
     if (_next) return _next->handle(message);
@@ -58,21 +58,16 @@ bool HandlerMessage50::handle(const std::shared_ptr<Message>& message) {
     if (m50->status_request)
     {
         _status->setMenuAuthoriz(MENU_AUTHORIZATION::AUTHORIZATION_SUCCESSFUL);
-        // std::shared_ptr<Message7> mes = std::make_shared<Message7>();
-        // mes->my_login = this->_status->getLogin();
-        // json jj;
-        // mes->to_json(jj);
-        // _network->sendMess(jj.dump());
-        // this->getMess();
     }
     else
     {
-    _status->setMenuAuthoriz(MENU_AUTHORIZATION::EXIT_PROGRAMM);
+    _status->setMenuAuthoriz(MENU_AUTHORIZATION::VOID_REG);
     _status->setMenuChat(MENU_CHAT::VOID);
     _status->setLogin("");
     _status->setPass("");
     _status->setName("");
     _II->display_message("Ошибка в обмене ");
+    
     }
     return true;
 }
@@ -87,22 +82,10 @@ bool HandlerMessage51::handle(const std::shared_ptr<Message>& message) {
         return handleNext(message);
     }
     //обрабатываем
-    auto m51 = std::dynamic_pointer_cast<Message51>(message);
-
-    std::shared_ptr<Message4> data = _II->show_chat_H(m51->history_chat_H, _status->getName(), _status);
-    if ( data->mess == "")
-    {
-        _status->setMenuChat(MENU_CHAT::VOID);
-    }
-    else{
-        std::shared_ptr<Message4> mes = std::make_shared<Message4>();
-        mes->user_sender = this->_status->getLogin();
-        mes->mess = data->mess;
-        json jj;
-        mes->to_json(jj);
-        _network->sendMess(jj.dump());
-        this->getMess();
-    }
+    _status->setMess(message);
+    _status->setMessType(51);
+    _status->set_message_status(true);
+    _status->setMenuChat(MENU_CHAT::SHOW_CHAT_H);
     return true;
 }
 
@@ -115,28 +98,9 @@ bool HandlerMessage52::handle(const std::shared_ptr<Message>& message) {
         return handleNext(message);
     }
     //обрабатываем
-    auto m52 = std::dynamic_pointer_cast<Message52>(message);
-    _status->setMenuChat(MENU_CHAT::SHOW_CHAT_P);
-    std::pair<std::string, std::string> fr_Us = m52->login_name_friend;
-    std::shared_ptr<Message3> data = _II->show_chat_P(m52->history_chat_P, _status->getName(), fr_Us.second, _status);
-
-    if ( data->mess == "")
-    {
-        _status->setMenuChat(MENU_CHAT::LIST_CHAT_P);
-    }
-    else{
-        _status->setMenuChat(MENU_CHAT::SHOW_CHAT_P);
-        std::shared_ptr<Message3> mes = std::make_shared<Message3>();
-        mes->user_sender = this->_status->getLogin();
-        mes->mess = data->mess;
-        mes->user_recipient = fr_Us.second;
-        // В ПРОТОКОЛ НУЖНО ДОБАВИТЬ ЛОГИН СОБЕСЕДНИКА 
-        json jj;
-        mes->to_json(jj);
-        _network->sendMess(jj.dump());
-        this->getMess();
-    }
-
+    _status->setMess(message);
+    _status->setMessType(52);
+    _status->set_message_status(true);
     return true;
 }
 
@@ -152,21 +116,9 @@ bool HandlerMessage53::handle(const std::shared_ptr<Message>& message) {
         return handleNext(message);
     }
     //обрабатываем
-    auto m53 = std::dynamic_pointer_cast<Message53>(message);
-    std::pair<std::string, std::string> data = _II->show_list_chat_P(m53->list_chat_P, _status);
-    if ( data.first == "" || data.second == "")
-    {
-        _status->setMenuChat(MENU_CHAT::VOID);
-    }
-    else{
-        std::shared_ptr<Message8> mes = std::make_shared<Message8>();
-        mes->user_sender = this->_status->getLogin();
-        mes->user_recipient = data.first;
-        json jj;
-        mes->to_json(jj);
-        _network->sendMess(jj.dump());
-        this->getMess();
-    }
+    _status->setMess(message);
+    _status->setMessType(53);
+    _status->set_message_status(true);
     return true;
 }
 
@@ -186,22 +138,9 @@ bool HandlerMessage54::handle(const std::shared_ptr<Message>& message) {
         return handleNext(message);
     }
     //обрабатываем
-    auto m54 = std::dynamic_pointer_cast<Message54>(message);
-    //ответ и открытие чата
-    std::pair<std::string, std::string> data = _II->show_list_users(m54->list_Users, _status);
-    // if ( data.first == "" || data.second == "")
-    // {
-    //     _status->setMenuChat(MENU_CHAT::VOID);
-    // }
-    // else{
-        std::shared_ptr<Message8> mes = std::make_shared<Message8>();
-        mes->user_sender = this->_status->getLogin();
-        mes->user_recipient = data.first;
-        json jj;
-        mes->to_json(jj);
-        _network->sendMess(jj.dump());
-        this->getMess();
-    // }
+    _status->setMess(message);
+    _status->setMessType(54);
+    _status->set_message_status(true);
     return true;
 }
 
