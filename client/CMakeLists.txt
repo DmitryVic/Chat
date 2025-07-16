@@ -10,6 +10,11 @@ add_executable(chat_client
     src/UserStatus.cpp
 )
 
+# Для Linux-клиента
+if(UNIX AND NOT APPLE)
+    target_compile_definitions(chat_client PRIVATE SET_GLOBAL_LOCALE_LINUX)
+endif()
+
 # линкует клиентский исполняемый файл с общей библиотекой
 target_link_libraries(chat_client PRIVATE common)
 # общая библиотека нужна только для сборки PRIVATE

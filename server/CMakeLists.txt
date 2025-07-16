@@ -13,6 +13,8 @@ if(UNIX)
         src/MessageHandler.cpp
     )
 
+    target_compile_definitions(chat_server PRIVATE SET_GLOBAL_LOCALE_LINUX)
+    
     # линковка с общей библиотекой
     target_link_libraries(chat_server PRIVATE common)
 

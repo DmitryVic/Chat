@@ -22,7 +22,18 @@ namespace fs = std::filesystem;
 
 int main() {
     
-    //перенаправление логирования в файл
+    // Универсальная настройка локали
+    setlocale(LC_ALL, "ru_RU.UTF-8");
+
+    // Для Linux
+    #ifdef SET_GLOBAL_LOCALE_LINUX
+    try {
+        std::locale::global(std::locale("ru_RU.UTF-8"));
+    } catch (const std::exception& e) {
+        std::cerr << "Locale error: " << e.what() << std::endl;
+        std::locale::global(std::locale("C.UTF-8")); // Fallback
+    }
+    #endif
 
     auto dir_path = std::filesystem::path(LOG_F).parent_path();
     if (!dir_path.empty() && !std::filesystem::exists(dir_path)) {

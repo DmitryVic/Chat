@@ -78,7 +78,8 @@ public:
 // Отправка сообщения в общий чат
 class Message4 : public Message {
 public:
-    std::string user_sender;
+    std::string login_user_sender;
+    std::string name_user_sender;
     std::string mess;
     
     int getTupe() const override { return 4; }
@@ -177,7 +178,7 @@ public:
 // Передача данных общего чата
 class Message51 : public Message {
 public:
-    std::vector<std::pair<std::string, std::string>> history_chat_H;
+    std::vector<std::vector<std::string>> history_chat_H;
     
     int getTupe() const override { return 51; }
     

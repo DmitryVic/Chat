@@ -51,12 +51,13 @@ void Message3::from_json(const json& j) {
 
 // Отправка сообщения в общий чат
 void Message4::to_json(json& j) const{
-        j = {{"type", 4}, {"user_sender", user_sender}, {"mess", mess}};
+        j = {{"type", 4}, {"login_user_sender", login_user_sender}, {"name_user_sender", name_user_sender}, {"mess", mess}};
     }
 
 // Отправка сообщения в общий чат 
 void Message4::from_json(const json& j){
-    user_sender = j.at("user_sender").get<std::string>();
+    login_user_sender = j.at("login_user_sender").get<std::string>();
+    name_user_sender = j.at("name_user_sender").get<std::string>();
     mess = j.at("mess").get<std::string>();
 }
 
@@ -137,7 +138,7 @@ void Message51::to_json(json& j) const{
 
 // Передача данных общего чата
 void Message51::from_json(const json& j){
-    history_chat_H = j.at("history_chat_H").get<std::vector<std::pair<std::string, std::string>>>();
+    history_chat_H = j.at("history_chat_H").get<std::vector<std::vector<std::string>>>();
 }
 
 

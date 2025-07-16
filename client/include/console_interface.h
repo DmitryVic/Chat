@@ -31,11 +31,10 @@ public:
 
     // отобразить чаты предать историю и 
     std::shared_ptr<Message3> show_chat_P(const std::vector<std::pair<std::string, std::string>>& history_chat_P, 
-        const std::string& my_User, const  std::string& friend_User,
+        const  std::string& login_friend_User, const  std::string& name_friend_User,
         std::shared_ptr<UserStatus> status) override;
 
-    std::shared_ptr<Message4> show_chat_H(const  std::vector<std::pair<std::string, std::string>>& history_chat_H, 
-        const std::string& my_User,
+    std::shared_ptr<Message4> show_chat_H(const  std::vector<std::vector<std::string>>& history_chat_H, 
         std::shared_ptr<UserStatus> status) override;
 
     // отобразить поле авторизации

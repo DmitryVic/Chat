@@ -134,7 +134,6 @@ bool HandlerMessage3::handle(const std::shared_ptr<Message>& message){
     // Отправляем ответ
     Message52 mess_class;
     mess_class.history_chat_P = history_chat_P;
-    mess_class.history_chat_P = history_chat_P;
     mess_class.login_name_MY.first = user_sender->getLogin();
     mess_class.login_name_MY.second = user_sender->getName();
     mess_class.login_name_friend.first = user_recipient->getLogin();
@@ -156,7 +155,7 @@ bool HandlerMessage4::handle(const std::shared_ptr<Message>& message){
     }
 
     auto m4 = std::dynamic_pointer_cast<Message4>(message);
-    std::shared_ptr<User> user_sender = _db->search_User(m4->user_sender);
+    std::shared_ptr<User> user_sender = _db->search_User(m4->login_user_sender);
     
     if (user_sender == nullptr)
     {
@@ -182,7 +181,7 @@ bool HandlerMessage4::handle(const std::shared_ptr<Message>& message){
     }
 
     _db->write_Chat_H(user_sender, m4->mess);
-    std::vector<std::pair<std::string, std::string>> history_chat_H; 
+    std::vector<std::vector<std::string>> history_chat_H; 
     _db->load_Chat_H(history_chat_H);
     
     // Отправляем ответ
@@ -395,7 +394,7 @@ bool HandlerMessage9::handle(const std::shared_ptr<Message>& message){
         throw std::runtime_error("HandlerMessage4: Закрываю соединение...");
     }
 
-    std::vector<std::pair<std::string, std::string>> history_chat_H; 
+    std::vector<std::vector<std::string>> history_chat_H; 
     _db->load_Chat_H(history_chat_H);
     
     // Отправляем ответ

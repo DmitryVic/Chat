@@ -154,7 +154,7 @@ void interaction_chat::chat_H(){
         //Сообщение существует, откроем чат
         if(_status->get_message_status() && _status->getMessageType() == 51){
             auto m51 = std::dynamic_pointer_cast<Message51>(_status->getMessage()); // забираем сообщение
-            std::shared_ptr<Message4> data = _II->show_chat_H(m51->history_chat_H, _status->getName(), _status); //открвываем чат
+            std::shared_ptr<Message4> data = _II->show_chat_H(m51->history_chat_H, _status); //открвываем чат
             if ( data->mess == ""){//пользователь хочет выйти
                 _status->set_message_status(false);
                 _status->setMenuChat(MENU_CHAT::VOID);
@@ -163,7 +163,8 @@ void interaction_chat::chat_H(){
             else // пользователь не выходит обновляем чат 
             {
                 std::shared_ptr<Message4> mes = std::make_shared<Message4>();
-                mes->user_sender = this->_status->getLogin();
+                mes->login_user_sender = this->_status->getLogin();
+                mes->name_user_sender = this->_status->getName();
                 mes->mess = data->mess;
                 json jj;
                 mes->to_json(jj);
@@ -283,7 +284,7 @@ void interaction_chat::chat_P(){
             _status->set_message_status(false);
             //ответ и открытие чата
             std::pair<std::string, std::string> fr_Us = m52->login_name_friend;
-            std::shared_ptr<Message3> data = _II->show_chat_P(m52->history_chat_P, _status->getName(), fr_Us.second, _status);
+            std::shared_ptr<Message3> data = _II->show_chat_P(m52->history_chat_P, fr_Us.first, fr_Us.second, _status);
 
             if ( data->mess == ""){//пользователь хочет выйти
                 _status->setMenuChat(MENU_CHAT::VOID);

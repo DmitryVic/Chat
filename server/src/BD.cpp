@@ -311,6 +311,7 @@ bool DataBaseFile::write_Chat_H(std::shared_ptr<User> user_sender, const std::st
     std::ofstream fs(CHAT_HARED_FILE, std::ios::app);
     if (fs.is_open()) {
         fs << user_sender->getLogin() << '\n'
+           << user_sender->getName() << '\n'
            << mess << "\n\n";
         fs.close();
         return true;
@@ -321,8 +322,8 @@ bool DataBaseFile::write_Chat_H(std::shared_ptr<User> user_sender, const std::st
 }
 
 
-// Загрузить историю общего чата: пары <login, сообщение>
-bool DataBaseFile::load_Chat_H(std::vector<std::pair<std::string, std::string>>& out) {
+// Загрузить историю общего чата: пары <login, name, сообщение>
+bool DataBaseFile::load_Chat_H(std::vector<std::vector<std::string>>& out) {
 
     createDirectoryIfNeeded(CHAT_HARED_FILE);
     //Если существует такой файл
@@ -335,9 +336,9 @@ bool DataBaseFile::load_Chat_H(std::vector<std::pair<std::string, std::string>>&
 
     if (!fs.is_open()) return false;
 
-    std::string login, mess;
-    while (std::getline(fs, login) && std::getline(fs, mess)) {
-        out.emplace_back(login, mess);
+    std::string login, name, mess;
+    while (std::getline(fs, login) && std::getline(fs, name) && std::getline(fs, mess)) {
+        out.push_back({login, name, mess});
         //пропуск разделитяля
         std::string sep;
         std::getline(fs, sep);

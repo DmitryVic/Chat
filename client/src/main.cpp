@@ -15,6 +15,14 @@
 #include <nlohmann/json.hpp>
 #include "User.h"
 #include "MessageHandler.h"
+//локаль
+#include <locale>
+#include <clocale>
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 
 using namespace std;
 using json = nlohmann::json;
@@ -22,6 +30,26 @@ using json = nlohmann::json;
 #define PORT 7777
 
 int main() {
+    
+    // Универсальная настройка локали
+    setlocale(LC_ALL, "ru_RU.UTF-8");
+
+    // Для Windows
+    #ifdef _WIN32
+    SetConsoleCP(CP_UTF8);
+    SetConsoleOutputCP(CP_UTF8);
+    #endif
+
+    // Для Linux
+    #ifdef SET_GLOBAL_LOCALE_LINUX
+    try {
+        std::locale::global(std::locale("ru_RU.UTF-8"));
+    } catch (const std::exception& e) {
+        std::cerr << "Locale error: " << e.what() << std::endl;
+        std::locale::global(std::locale("C.UTF-8")); // Fallback
+    }
+    #endif
+    
     std::shared_ptr<NetworkClient> network = std::make_shared<NetworkClient>("127.0.0.1", PORT);
     network->connecting();
     std::shared_ptr<interactive_interface> II = std::make_shared<console_interface>();

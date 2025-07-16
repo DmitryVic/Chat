@@ -52,7 +52,7 @@ public:
 
 
         // Загрузить историю общего чата: пары <login, сообщение>
-        virtual bool load_Chat_H(std::vector<std::pair<std::string, std::string>>& out) = 0;
+        virtual bool load_Chat_H(std::vector<std::vector<std::string>>& out) = 0;
 
 };
 
@@ -123,7 +123,7 @@ public:
 
 
         // Загрузить историю общего чата: пары <login, сообщение>
-        bool load_Chat_H(std::vector<std::pair<std::string, std::string>>& out) override;
+        bool load_Chat_H(std::vector<std::vector<std::string>>& out) override;
 
 };
 

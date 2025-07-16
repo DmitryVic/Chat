@@ -24,26 +24,31 @@ console_interface::~console_interface()
 
 // отобразить чат P
 std::shared_ptr<Message3> console_interface::show_chat_P(const std::vector<std::pair<std::string, std::string>>& history_chat_P, 
-    const std::string& my_User, const  std::string& friend_User,
-    std::shared_ptr<UserStatus> status){
+        const  std::string& login_friend_User, const  std::string& name_friend_User,
+        std::shared_ptr<UserStatus> status){
         
     std::string userInput; // Вводимое пользователем знначение
     if (history_chat_P.empty())
     {
-        cout << _GREY_BG << "\nИстория чата с ползователем" << friend_User << " пуста\n\n" << _CLEAR << endl;
+        cout << _GREY_BG << "\nИстория чата с ползователем" << login_friend_User << " пуста\n\n" << _CLEAR << endl;
     }
     else
     {
-        cout << _GREY_BG << "\nЧат с ползователем" << friend_User << "\n\n" << _CLEAR << endl;
+        cout << _GREY_BG << "\nЧат с ползователем " << login_friend_User << "\n\n" << _CLEAR << endl;
         for (auto mes : history_chat_P)
         {
-            if (mes.first == my_User)
+            if (mes.first == status->getLogin())
             {
-                cout << _CYAN << mes.first << "\t" << mes.second << _CLEAR << "\n" << endl;
+                cout << _CYAN << status->getName() << _CLEAR << "\t" << mes.second  << "\n" << endl;
             }
+            else if (mes.first == login_friend_User)
+            {
+                cout << _YELLOW << login_friend_User << _CLEAR << "\t" << mes.second  << "\n" << endl;
+            }
+            
             else
             {
-                cout << _YELLOW << mes.first << "\t" << mes.second << _CLEAR << "\n" << endl;
+                cout << _MAGENTA << mes.first << "\t" << mes.second << _CLEAR << "\n" << endl;
             }
         }
     }
@@ -52,8 +57,8 @@ std::shared_ptr<Message3> console_interface::show_chat_P(const std::vector<std::
 
     std::getline(std::cin >> std::ws, userInput);  // Читаем всю строку
     std::shared_ptr<Message3> answer = std::make_shared<Message3>();
-    answer->user_sender = my_User;
-    answer->user_recipient = friend_User;
+    answer->user_sender = status->getLogin();
+    answer->user_recipient = login_friend_User;
     if (userInput != "/exit"){
         answer->mess = userInput;
         status->setMenuChat(MENU_CHAT::SHOW_CHAT_P);
@@ -67,10 +72,8 @@ std::shared_ptr<Message3> console_interface::show_chat_P(const std::vector<std::
 }
 
 // отобразить чат H
-std::shared_ptr<Message4> console_interface::show_chat_H(const  std::vector<std::pair<std::string, 
-    std::string>>& history_chat_H, 
-    const std::string& my_User,
-    std::shared_ptr<UserStatus> status){
+std::shared_ptr<Message4> console_interface::show_chat_H(const  std::vector<std::vector<std::string>>& history_chat_H, 
+        std::shared_ptr<UserStatus> status){
                 
         std::string userInput; // Вводимое пользователем знначение
         if (history_chat_H.empty())
@@ -80,16 +83,17 @@ std::shared_ptr<Message4> console_interface::show_chat_H(const  std::vector<std:
         else
         {
             cout << _GREY_BG << "\nОбщий чат" << "\n\n" << _CLEAR << endl;
-            for (auto mes : history_chat_H)
+            for (auto data : history_chat_H)
             {
-                if (mes.first == my_User)
+                if (data[0] == status->getLogin())
                 {
-                    cout << _CYAN << mes.first << "\t" << mes.second << _CLEAR << "\n" << endl;
+                    cout << _CYAN << data[1] << _CLEAR << "\t" << data[2]  << "\n" << endl;
                 }
                 else
                 {
-                    cout << _YELLOW << mes.first << "\t" << mes.second << _CLEAR << "\n" << endl;
+                    cout << _YELLOW << data[1] << _CLEAR << "\t" << data[2]  << "\n" << endl;
                 }
+                
             }
         }
         
@@ -97,7 +101,8 @@ std::shared_ptr<Message4> console_interface::show_chat_H(const  std::vector<std:
 
         std::getline(std::cin >> std::ws, userInput);  // Читаем всю строку
         std::shared_ptr<Message4> answer = std::make_shared<Message4>();
-        answer->user_sender = my_User;
+        answer->login_user_sender = status->getLogin();
+        answer->name_user_sender = status->getName();
         if (userInput != "/exit"){
             answer->mess = userInput;
             status->setMenuChat(MENU_CHAT::SHOW_CHAT_H);
