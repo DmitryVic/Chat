@@ -67,7 +67,8 @@ int main() {
     auto Handler56 = std::make_shared<HandlerMessage56>(network, II, status);
     auto messageError = std::make_shared<HandlerErr>(network, II, status);
     
-    Handler56->setNext(nullptr);
+    messageError->setNext(nullptr);
+    Handler56->setNext(messageError);
     Handler55->setNext(Handler56);
     Handler54->setNext(Handler55);
     Handler53->setNext(Handler54);
