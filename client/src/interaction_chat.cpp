@@ -188,7 +188,7 @@ void interaction_chat::chat_H(){
 void interaction_chat::list_user(){
     while (_status->getMenuChat() == MENU_CHAT::LIST_USERS)
     {
-        //Сообщение существует, откроем чат
+        //Сообщение существует, откроем чат 52
         if(_status->get_message_status() && _status->getMessageType() == 54){
             auto m54 = std::dynamic_pointer_cast<Message54>(_status->getMessage()); // забираем сообщение
             _status->set_message_status(false);
@@ -213,7 +213,7 @@ void interaction_chat::list_user(){
 
                 // открываем приватный чат
                 _status->setMenuChat(MENU_CHAT::SHOW_CHAT_P);
-                list_chat_P();
+                chat_P();
             }
         }else//Не получали сообщение список пользователей, запрашиваем
         {
@@ -249,7 +249,7 @@ void interaction_chat::list_chat_P(){
                 // запросить данные приватного чата
                 std::shared_ptr<Message8> mes = std::make_shared<Message8>();
                 mes->user_sender = this->_status->getLogin();
-                mes->user_recipient = data.first;
+                mes->user_recipient = data.first;/////////////////////////////////////////////////
                 json jj;
                 mes->to_json(jj);
                 _network->sendMess(jj.dump());
@@ -257,7 +257,7 @@ void interaction_chat::list_chat_P(){
 
                 // открываем приватный чат
                 _status->setMenuChat(MENU_CHAT::SHOW_CHAT_P);
-                list_chat_P();
+                chat_P();
             }
         }else//Не получали сообщение список пользователей, запрашиваем
         {
@@ -296,7 +296,7 @@ void interaction_chat::chat_P(){
                 std::shared_ptr<Message3> mes = std::make_shared<Message3>();
                 mes->user_sender = this->_status->getLogin();
                 mes->mess = data->mess;
-                mes->user_recipient = fr_Us.second;
+                mes->user_recipient = fr_Us.first;
                 json jj;
                 mes->to_json(jj);
                 _network->sendMess(jj.dump());

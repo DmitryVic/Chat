@@ -137,8 +137,8 @@ bool HandlerMessage3::handle(const std::shared_ptr<Message>& message){
     mess_class.history_chat_P = history_chat_P;
     mess_class.login_name_MY.first = user_sender->getLogin();
     mess_class.login_name_MY.second = user_sender->getName();
-    mess_class.login_name_friend.first = user_sender->getLogin();
-    mess_class.login_name_friend.second = user_sender->getName();
+    mess_class.login_name_friend.first = user_recipient->getLogin();
+    mess_class.login_name_friend.second = user_recipient->getName();
     json mess_json;
     json j;
     mess_class.to_json(j);
@@ -320,7 +320,7 @@ bool HandlerMessage8::handle(const std::shared_ptr<Message>& message){
     
     if (user_sender == nullptr || user_recipient == nullptr)
     {
-        std::cerr << "ошибка бд: "  << std::endl;
+        std::cerr << "ошибка бд: HandlerMessage8::handle"  << std::endl;
         //Error: Не верные данные авторизации авторизованного юзера (сообщение 3)
         // Отправляем ответ об ошибке
         Message50 response;
@@ -351,8 +351,8 @@ bool HandlerMessage8::handle(const std::shared_ptr<Message>& message){
     mess_class.history_chat_P = history_chat_P;
     mess_class.login_name_MY.first = user_sender->getLogin();
     mess_class.login_name_MY.second = user_sender->getName();
-    mess_class.login_name_friend.first = user_sender->getLogin();
-    mess_class.login_name_friend.second = user_sender->getName();
+    mess_class.login_name_friend.first = user_recipient->getLogin();
+    mess_class.login_name_friend.second = user_recipient->getName();
     json mess_json;
     json j;
     mess_class.to_json(j);
