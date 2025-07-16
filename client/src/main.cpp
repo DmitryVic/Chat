@@ -20,7 +20,7 @@
 #include <clocale>
 
 #ifdef _WIN32
-#include <windows.h>
+    #include <windows.h>
 #endif
 
 
@@ -52,12 +52,11 @@ int main() {
     
     std::shared_ptr<NetworkClient> network = std::make_shared<NetworkClient>("127.0.0.1", PORT);
     network->connecting();
+
     std::shared_ptr<interactive_interface> II = std::make_shared<console_interface>();
     std::shared_ptr<UserStatus> status = std::make_shared<UserStatus>();
     
-    
-    
-    // Теперь создаем обработчики
+    // Создаем обработчики
     auto Handler50 = std::make_shared<HandlerMessage50>(network, II, status);
     auto Handler51 = std::make_shared<HandlerMessage51>(network, II, status);
     auto Handler52 = std::make_shared<HandlerMessage52>(network, II, status);
@@ -66,7 +65,7 @@ int main() {
     auto Handler55 = std::make_shared<HandlerMessage55>(network, II, status);
     auto Handler56 = std::make_shared<HandlerMessage56>(network, II, status);
     auto messageError = std::make_shared<HandlerErr>(network, II, status);
-    
+    // Связываем
     messageError->setNext(nullptr);
     Handler56->setNext(messageError);
     Handler55->setNext(Handler56);

@@ -11,33 +11,6 @@
 #include "MessageHandler.h"
 #include "interaction_chat.h" // Теперь включаем здесь
 
-// MessageHandler::MessageHandler(std::shared_ptr<NetworkClient> network, std::shared_ptr<interactive_interface> II, std::shared_ptr<UserStatus> status)
-//     : _network(network), _II(II), _status(status), _next(nullptr) 
-// {
-// }
-
-// void MessageHandler::getMess(){
-//     try {
-       
-//         std::string json_str = _network->getMess();
-//         auto msg = parse_message(json_str);
-        
-//         if (!msg) {
-//             throw std::runtime_error("Неверное сообщение с сервера");
-//         }
-//         ///////////////////////////////////////////////////////////////////////////////////////
-//         std::cerr << "MessageHandler::getMess" << std::endl;
-//         _II->display_message(json_str);
-//         std::cerr << "Обработка сообщения в MessageHandler::getMess" << std::endl;
-//         ///////////////////////////////////////////////////////////////////////////////////////
-//         this->handle(msg);
-        
-//     } catch (const std::exception& e) {
-//         std::cerr << "Error: " << e.what() << std::endl;
-//         _II->display_message(e.what());
-//         _status->setMenuAuthoriz(MENU_AUTHORIZATION::EXIT_PROGRAMM);
-//     }
-// }
 
 bool MessageHandler::handleNext(const std::shared_ptr<Message>& message) {
     if (_next) return _next->handle(message);
