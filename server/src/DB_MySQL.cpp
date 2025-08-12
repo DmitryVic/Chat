@@ -214,13 +214,6 @@ std::vector<std::pair<std::string, std::string>> DataBaseMySQL::list_all_User(st
         return send;
     }
 
-    row = mysql_fetch_row(res);
-    if (!row) { // Нет подходящих записей
-        mysql_free_result(res);
-        return send;
-    }
-
-
     // Количество полей
     unsigned num_fields = mysql_num_fields(res);
     if (num_fields != 2) {
@@ -230,6 +223,7 @@ std::vector<std::pair<std::string, std::string>> DataBaseMySQL::list_all_User(st
 
     while ((row = mysql_fetch_row(res))) {
         send.push_back({row[0], row[1]});
+        std::cout << "Добавляю строку " << row[0] << " - " << row[1] << std::endl;
     }
 
     mysql_free_result(res);
@@ -241,8 +235,50 @@ std::vector<std::pair<std::string, std::string>> DataBaseMySQL::list_all_User(st
 // std::vector<std::pair<std::string ЛОГИН, std::string ИМЯ>>
 std::vector<std::pair<std::string, std::string>> DataBaseMySQL::my_chat_P(std::string my_login) {
     std::vector<std::pair<std::string, std::string>> send;
+    //ЗАПРОС ПОЛУЧИТЬ ID ЧАТОВ ПОЛЬЗОВАТЕЛЯ - ПОЛУЧИТЬ ЛОГ ИМЯ ПОЛЬЗОВАТЕЛЕЙ У КОТОРЫХ ЕСТЬ ЭТИ ЧАТЫ
+    // SELECT us.login, us.name 
+    // FROM users us
+    // JOIN user_chats usc ON usc.user_id = us.id 
+    // WHERE usc.chat_id IN (
+    // SELECT uc.chat_id  
+    // FROM user_chats uc 
+    // WHERE user_id = (SELECT id FROM users u WHERE u.login = 'login1' LIMIT 1)
+    // ) and usc.user_id  <> (SELECT id FROM users u WHERE u.login = 'login1' LIMIT 1);
+
+    std::vector<std::pair<std::string, std::string>> out;
+    std::string request_mysql =  "SELECT us.login, us.name FROM users us JOIN user_chats usc ON usc.user_id = us.id WHERE usc.chat_id IN (SELECT uc.chat_id FROM user_chats uc WHERE user_id = (SELECT id FROM users u WHERE u.login = '"
+    + my_login + "' LIMIT 1) ) and usc.user_id  <> (SELECT id FROM users u WHERE u.login = '" + my_login + "' LIMIT 1);";
+    // Выполнение запроса
+    if (mysql_query(&mysql, request_mysql.c_str()) != 0) {
+        std::cerr << "Ошибка БД (MySQL) получения истории переписки my_chat_P: " << mysql_error(&mysql) << std::endl;
+        return out;
+    }
+
+    // Получение результата
+    res = mysql_store_result(&mysql);
     
-    return send;
+    if (!res) { // Проверка на NULL результата
+        if (mysql_errno(&mysql)) {
+            // Ошибка выполнения запроса
+            std::cerr << "Ошибка БД (MySQL) получения истории переписки my_chat_P (запрос пуст с ошибкой): " << mysql_error(&mysql) << std::endl;
+        }
+        return out;
+    }
+
+    // Количество полей
+    unsigned num_fields = mysql_num_fields(res);
+    if (num_fields != 2) {
+        mysql_free_result(res);
+        std::cerr << "БД (MySQL) Ожидалось 2 поля в результате зполучения истории переписки my_chat_P" << std::endl;
+        return out;
+    }
+
+    while ((row = mysql_fetch_row(res))) {
+        out.push_back({row[0], row[1]});
+        std::cout << "Добавляю строку " << row[0] << " - " << row[1] << std::endl;
+    }
+    mysql_free_result(res);
+    return out;
 }
 
 
@@ -294,7 +330,7 @@ bool DataBaseMySQL::load_Chat_H(std::vector<std::vector<std::string>>& out) {
     // JOIN users u ON u.id = m.sender_id
     // WHERE m.chat_id IN (SELECT min(id) as id_chat_p FROM chats WHERE type = 'common');
 
-    std::string request_mysql =  "SELECT u.login, u.name, m.text FROM messages m JOIN users u ON u.id = m.sender_id WHERE m.chat_id IN (SELECT min(id) as id_chat_p FROM chats WHERE type = 'common');";
+    std::string request_mysql =  "SELECT u.login, u.name, m.text FROM messages m JOIN users u ON u.id = m.sender_id WHERE m.chat_id IN (SELECT min(id) as id_chat_p FROM chats WHERE type = 'common') ORDER BY m.created_at;";
     if (mysql_query(&mysql, request_mysql.c_str()) != 0) {
         std::cerr << "Ошибка полученияистории приватного чата БД (MySQL) load_Chat_H: " << mysql_error(&mysql) << std::endl;
         return false;
@@ -314,12 +350,12 @@ bool DataBaseMySQL::load_Chat_H(std::vector<std::vector<std::string>>& out) {
         return true;
     }
 
-    row = mysql_fetch_row(res);
-    if (!row) { // Нет подходящих записей
-        mysql_free_result(res);
-        out.clear();
-        return true;
-    }
+    // row = mysql_fetch_row(res);
+    // if (!row) { // Нет подходящих записей
+    //     mysql_free_result(res);
+    //     out.clear();
+    //     return true;
+    // }
 
 
     // Количество полей
