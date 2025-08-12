@@ -275,66 +275,64 @@ bool DataBaseMySQL::load_Chat_P(std::shared_ptr<User> user_sender, std::shared_p
 //запись в общий чат, проверить перед записью существоваие файла!
 bool DataBaseMySQL::write_Chat_H(std::shared_ptr<User> user_sender, const std::string& mess) {
     
-    // ПРАВИЛЬНЫЙ ЗАПРОС НА ДОБАВЛЕНИЕ ДАННЫХ БЕЗ ПРОВЕРКИ АЙДИ А СРАЗУ В ЗАПРОСЕ ПРОВЕРЯЕМ  
-
-
-    // INSERT INTO messages (chat_id, sender_id, text)
-    // VALUES (
-    // (SELECT min(id) FROM chats WHERE type = 'common' ORDER BY id LIMIT 1),
-    // (SELECT u.id FROM users u WHERE u.login = 'login1' LIMIT 1),
-    // 'text'
-    // );
-    
-    
     // получаем приватный чат ORDER BY id для надежности взять верхний (минимальный) а в методе отображения минимальный отображается
-    std::string request_mysql =  "SELECT id FROM chats WHERE type = 'common' ORDER BY id;";
+    std::string request_mysql =  "INSERT INTO messages (chat_id, sender_id, text) VALUES ((SELECT min(id) FROM chats WHERE type = 'common' ORDER BY id LIMIT 1), (SELECT u.id FROM users u WHERE u.login = '"
+    + user_sender->getLogin() + "' LIMIT 1), '" + mess + "');";
     // Выполнение запроса
     if (mysql_query(&mysql, request_mysql.c_str()) != 0) {
-        std::cerr << "Ошибка БД (MySQL) получения id приватного чата в write_Chat_P: " << mysql_error(&mysql) << std::endl;
+        std::cerr << "Ошибка записи БД (MySQL) приватного чата в write_Chat_P: " << mysql_error(&mysql) << std::endl;
         return false;
     }
-     // Получение результата
-    res = mysql_store_result(&mysql);
-    
-    if (!res) { // Проверка на NULL результата
-        if (mysql_errno(&mysql)) {
-            // Ошибка выполнения запроса
-            std::cerr << "Ошибка БД (MySQL) приватный чат, метод - write_Chat_P: " << mysql_error(&mysql) << std::endl;
-            return false;
-        }
-        // Нет результатов
-        std::cerr << "Ошибка БД (MySQL) приватный чат отсутствует, метод - write_Chat_P" << std::endl;
-        return false;
-    }
-
-    row = mysql_fetch_row(res);
-    if (!row) { // Нет записей
-        mysql_free_result(res);
-        std::cerr << "Ошибка БД (MySQL) нет записей row, метод - write_Chat_P" << std::endl;
-        return false;
-    }
-
-    // Количество полей
-    unsigned num_fields = mysql_num_fields(res);
-    if (num_fields != 1) {
-        mysql_free_result(res);
-        std::cerr << "БД (MySQL) Ожидалось 1 поле в результате получения id приватного чата в write_Chat_P" << std::endl;
-        return false;
-    }
-    std::string id_chat_P = row[0];
-    mysql_free_result(res);
-    
-    
-    return false;
-
+    return true;
 }
 
 
-// Загрузить историю общего чата: пары <login, name, сообщение>
+// Загрузить историю общего чата:  <login, name, сообщение>
 bool DataBaseMySQL::load_Chat_H(std::vector<std::vector<std::string>>& out) {
     // SELECT u.name, m.text
     // FROM messages m
     // JOIN users u ON u.id = m.sender_id
     // WHERE m.chat_id IN (SELECT min(id) as id_chat_p FROM chats WHERE type = 'common');
+
+    std::string request_mysql =  "SELECT u.login, u.name, m.text FROM messages m JOIN users u ON u.id = m.sender_id WHERE m.chat_id IN (SELECT min(id) as id_chat_p FROM chats WHERE type = 'common');";
+    if (mysql_query(&mysql, request_mysql.c_str()) != 0) {
+        std::cerr << "Ошибка полученияистории приватного чата БД (MySQL) load_Chat_H: " << mysql_error(&mysql) << std::endl;
+        return false;
+    }
+
+    // Получение результата
+    res = mysql_store_result(&mysql);
+    
+    if (!res) { // Проверка на NULL результата
+        if (mysql_errno(&mysql)) {
+            // Ошибка выполнения запроса
+            std::cerr << "Ошибка получения истории приватного чата БД (MySQL) load_Chat_H: " << mysql_error(&mysql) << std::endl;
+            return false;
+        }
+        // Нет результатов
+        out.clear();
+        return true;
+    }
+
+    row = mysql_fetch_row(res);
+    if (!row) { // Нет подходящих записей
+        mysql_free_result(res);
+        out.clear();
+        return true;
+    }
+
+
+    // Количество полей
+    unsigned num_fields = mysql_num_fields(res);
+    if (num_fields != 3) {
+        mysql_free_result(res);
+        std::cerr << "БД (MySQL) Ожидалось 3 поля в результате запроса получения истории приватного чата" << std::endl;
+        return false;
+    }
+
+    while ((row = mysql_fetch_row(res))) {
+        out.push_back({row[0], row[1], row[2]});
+    }
+    mysql_free_result(res);
     return true;
 }
