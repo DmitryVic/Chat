@@ -12,12 +12,12 @@
 class DataBaseMySQL : public DataBase
 {
 private:
-        const char* USER = "chat_user";
-        const char* PASS = "12345678";
-        const char* BD = "chat";
-        MYSQL mysql;
-        MYSQL_RES* res;
-        MYSQL_ROW row;
+        const char* SQL_USER = "chat_user";
+        const char* SQL_PASS = "12345678";
+        const char* SQL_BD = "chat";
+        MYSQL sql_mysql;
+        MYSQL_RES* sql_res = nullptr;
+        MYSQL_ROW sql_row;
 
 public:
         DataBaseMySQL();
@@ -62,6 +62,13 @@ public:
 
         // Загрузить историю общего чата: пары <login, сообщение>
         bool load_Chat_H(std::vector<std::vector<std::string>>& out) override;
+
+        /*=====================================
+                ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ
+        =====================================*/
+
+        //Экранирование
+        std::string escapeString(const std::string& str);
 
 };
 
