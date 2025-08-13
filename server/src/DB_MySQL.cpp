@@ -10,14 +10,6 @@
 namespace fs = std::filesystem;
 
 
-std::string DataBaseMySQL::escapeString(const std::string& str) {
-	char* escaped = new char[str.length() * 2 + 1];
-	mysql_real_escape_string(&sql_mysql, escaped, str.c_str(), str.length());
-	std::string result(escaped);
-	delete[] escaped;
-	return result;
-}
-
 DataBaseMySQL::DataBaseMySQL()
 {
     mysql_init(&sql_mysql);
@@ -105,13 +97,8 @@ DataBaseMySQL::DataBaseMySQL()
             // НЕТ ПРОВЕРКИ НА НЕСКОЛЬКО ПОДОБНЫХ ЧАТОВ В БД
         }
     }
-
-    
-
-
-    
-
 }
+
 
 DataBaseMySQL::~DataBaseMySQL(){
     if (sql_res) {
@@ -133,9 +120,9 @@ void DataBaseMySQL::write_User(std::shared_ptr<User> user) {
     // запись в таблицу users
     std::string request_mysql =  
     "INSERT INTO users (login, name) VALUES (\"" 
-    + user->getLogin()
+    + escapeString(user->getLogin())
     + "\", \""
-    + user->getName()
+    + escapeString(user->getName())
     + "\");";
 
     if (mysql_query(&sql_mysql, request_mysql.c_str()) != 0) {
@@ -146,9 +133,9 @@ void DataBaseMySQL::write_User(std::shared_ptr<User> user) {
     // запись в таблицу user_passwords
     request_mysql =  
     "INSERT INTO user_passwords (user_id, pass) SELECT id, \"" 
-    + user->getPass()
+    + escapeString(user->getPass())
     + "\" FROM users WHERE login = \""
-    + user->getLogin()
+    + escapeString(user->getLogin())
     + "\";";
 
     if (mysql_query(&sql_mysql, request_mysql.c_str()) != 0) {
@@ -160,8 +147,11 @@ void DataBaseMySQL::write_User(std::shared_ptr<User> user) {
 
 //Поиск юзера пологину
 std::shared_ptr<User> DataBaseMySQL::search_User(const std::string& log){
-    std::string request_mysql =  "SELECT u.login, up.pass, u.name FROM users u JOIN user_passwords up ON u.id = up.user_id WHERE u.login = '"
-    + log + "';";
+    std::string request_mysql =  
+    "SELECT u.login, up.pass, u.name "
+    "FROM users u "
+    "JOIN user_passwords up ON u.id = up.user_id "
+    "WHERE u.login = '"+ escapeString(log) + "';";
 
     // Выполнение запроса
     if (mysql_query(&sql_mysql, request_mysql.c_str()) != 0) {
@@ -212,7 +202,7 @@ std::shared_ptr<User> DataBaseMySQL::search_User(const std::string& log){
 std::vector<std::pair<std::string, std::string>> DataBaseMySQL::list_all_User(std::string my_login){
     
     std::vector<std::pair<std::string, std::string>> send;
-    std::string request_mysql =  "SELECT u.login, u.name FROM users u WHERE u.login <> '" + my_login + "';";
+    std::string request_mysql =  "SELECT u.login, u.name FROM users u WHERE u.login <> '" + escapeString(my_login) + "';";
     
     // Выполнение запроса
     if (mysql_query(&sql_mysql, request_mysql.c_str()) != 0) {
@@ -253,19 +243,25 @@ std::vector<std::pair<std::string, std::string>> DataBaseMySQL::list_all_User(st
 //получение бзеров с кем есть приватный чат, возвращает логины и имена для отображения
 // std::vector<std::pair<std::string ЛОГИН, std::string ИМЯ>>
 std::vector<std::pair<std::string, std::string>> DataBaseMySQL::my_chat_P(std::string my_login) {
-    //ЗАПРОС ПОЛУЧИТЬ ID ЧАТОВ ПОЛЬЗОВАТЕЛЯ - ПОЛУЧИТЬ ЛОГ ИМЯ ПОЛЬЗОВАТЕЛЕЙ У КОТОРЫХ ЕСТЬ ЭТИ ЧАТЫ
-    // SELECT us.login, us.name 
-    // FROM users us
-    // JOIN user_chats usc ON usc.user_id = us.id 
-    // WHERE usc.chat_id IN (
-    // SELECT uc.chat_id  
-    // FROM user_chats uc 
-    // WHERE user_id = (SELECT id FROM users u WHERE u.login = 'login1' LIMIT 1)
-    // ) and usc.user_id  <> (SELECT id FROM users u WHERE u.login = 'login1' LIMIT 1);
 
     std::vector<std::pair<std::string, std::string>> out;
-    std::string request_mysql =  "SELECT us.login, us.name FROM users us JOIN user_chats usc ON usc.user_id = us.id WHERE usc.chat_id IN (SELECT uc.chat_id FROM user_chats uc WHERE user_id = (SELECT id FROM users u WHERE u.login = '"
-    + my_login + "' LIMIT 1) ) and usc.user_id  <> (SELECT id FROM users u WHERE u.login = '" + my_login + "' LIMIT 1);";
+
+        std::string request_mysql = 
+        "SELECT us.login, us.name "
+        "FROM users us "
+        "JOIN user_chats usc ON usc.user_id = us.id "
+        "WHERE usc.chat_id IN ("
+            "SELECT uc.chat_id "
+            "FROM user_chats uc "
+            "WHERE user_id = "
+                "(SELECT id FROM users u "
+                "WHERE u.login = '"
+                + escapeString(my_login) + 
+                "' LIMIT 1) ) "
+                "and usc.user_id  <> (SELECT id FROM users u WHERE u.login = '" 
+                + escapeString(my_login) + 
+                "' LIMIT 1);";
+
     // Выполнение запроса
     if (mysql_query(&sql_mysql, request_mysql.c_str()) != 0) {
         std::cerr << "Ошибка БД (MySQL) получения истории переписки my_chat_P: " << mysql_error(&sql_mysql) << std::endl;
@@ -309,25 +305,6 @@ std::vector<std::pair<std::string, std::string>> DataBaseMySQL::my_chat_P(std::s
 //запись в приватный чат (Отправитель, получатель, сообщение)
 bool DataBaseMySQL::write_Chat_P(std::shared_ptr<User> user_sender, std::shared_ptr<User> user_recipient, const std::string& mess) {
     
-    // -- ЗАБРАТЬ ID ЧАТА
-    // WITH id2 AS
-    // (
-    // SELECT uc.chat_id, COUNT(uc.chat_id ) as "c2"
-    // FROM user_chats uc 
-    // JOIN users u ON uc.user_id = u.id 
-    // WHERE u.login IN ('login1', 'login2') 
-    // GROUP BY uc.chat_id 
-    // ) 
-    // SELECT chat_id 
-    // FROM id2
-    // WHERE c2  = 2
-    // ;
-
-    // // Получение ID ЧАТА
-    // std::string request_mysql =  "WITH id2 AS (SELECT uc.chat_id, COUNT(uc.chat_id ) as \"c2\" FROM user_chats uc JOIN users u ON uc.user_id = u.id WHERE u.login IN ('"
-    // + user_sender->getLogin() + "', '" + user_recipient->getLogin()
-    // + "') GROUP BY uc.chat_id) SELECT chat_id FROM id2 WHERE c2  = 2 LIMIT 1";
-
     unsigned int chat_id = 0;
     bool transaction_ok = true;
 
@@ -341,12 +318,13 @@ bool DataBaseMySQL::write_Chat_P(std::shared_ptr<User> user_sender, std::shared_
         // Поиск существующего чата
         std::string request_mysql = 
             "WITH id2 AS ("
-            "SELECT uc.chat_id, COUNT(uc.chat_id) as c2 "
-            "FROM user_chats uc "
-            "JOIN users u ON uc.user_id = u.id "
-            "WHERE u.login IN ('" + escapeString(user_sender->getLogin()) + "', '" + 
-                                    escapeString(user_recipient->getLogin()) + "') "
-            "GROUP BY uc.chat_id) "
+                "SELECT uc.chat_id, COUNT(uc.chat_id) as c2 "
+                "FROM user_chats uc "
+                "JOIN users u ON uc.user_id = u.id "
+                "WHERE u.login IN ('" 
+                + escapeString(user_sender->getLogin()) + "', '" + 
+                escapeString(user_recipient->getLogin()) + "') "
+                "GROUP BY uc.chat_id) "
             "SELECT chat_id FROM id2 WHERE c2 = 2 LIMIT 1";
 
         if (mysql_query(&sql_mysql, request_mysql.c_str())) {
@@ -371,11 +349,11 @@ bool DataBaseMySQL::write_Chat_P(std::shared_ptr<User> user_sender, std::shared_
             
             // Добавляем пользователей в чат
             std::string add_users = 
-                "INSERT INTO user_chats (chat_id, user_id) VALUES " // Исправлено: user_id вместо chat_id
-                "(" + std::to_string(chat_id) + ", (SELECT id FROM users WHERE login = '" + 
-                escapeString(user_sender->getLogin()) + "')), "
-                "(" + std::to_string(chat_id) + ", (SELECT id FROM users WHERE login = '" + 
-                escapeString(user_recipient->getLogin()) + "'))";
+                "INSERT INTO user_chats (chat_id, user_id) VALUES "
+                    "(" + std::to_string(chat_id) + ", (SELECT id FROM users WHERE login = '" + 
+                        escapeString(user_sender->getLogin()) + "')), "
+                    "(" + std::to_string(chat_id) + ", (SELECT id FROM users WHERE login = '" + 
+                        escapeString(user_recipient->getLogin()) + "'))";
 
             if (mysql_query(&sql_mysql, add_users.c_str())) {
                 throw std::runtime_error("Ошибка добавления в чат write_Chat_P: " + std::string(mysql_error(&sql_mysql)));
@@ -419,32 +397,11 @@ bool DataBaseMySQL::write_Chat_P(std::shared_ptr<User> user_sender, std::shared_
     
     return transaction_ok;
 
-    }
-
-
+}
 
 
 // Загрузить историю приватного чата: пары <login, сообщение>
 bool DataBaseMySQL::load_Chat_P(std::shared_ptr<User> user_sender, std::shared_ptr<User> user_recipient, std::vector<std::pair<std::string, std::string>>& out) {
-
-//     SELECT uss.login, m.text
-// FROM messages m
-// JOIN users uss ON uss.id = m.sender_id
-// WHERE m.chat_id IN (
-// 	WITH id2 AS
-// 	(
-// 	SELECT uc.chat_id, COUNT(uc.chat_id ) AS c2
-// 	FROM user_chats uc
-// 	JOIN users u ON uc.user_id = u.id
-// 	WHERE u.login IN ('login1', 'login3')
-// 	GROUP BY uc.chat_id
-// 	)
-// 	SELECT chat_id
-// 	FROM id2
-// 	WHERE c2 = 2
-// )
-// ORDER BY m.created_at
-// ;
 
     // Очистка предыдущих результатов
     while (mysql_next_result(&sql_mysql) == 0) {
@@ -458,13 +415,13 @@ bool DataBaseMySQL::load_Chat_P(std::shared_ptr<User> user_sender, std::shared_p
     "FROM messages m "
     "JOIN users uss ON uss.id = m.sender_id "
     "WHERE m.chat_id IN (WITH id2 AS (SELECT uc.chat_id, COUNT(uc.chat_id ) AS c2 "
-    "FROM user_chats uc "
-    "JOIN users u ON uc.user_id = u.id "
-    "WHERE u.login IN ('"
-    + escapeString(user_sender->getLogin()) + "', '" 
-    + escapeString(user_recipient->getLogin()) + "') "
-    "GROUP BY uc.chat_id) SELECT chat_id FROM id2 WHERE c2 = 2) "
-    "ORDER BY m.created_at;";
+        "FROM user_chats uc "
+        "JOIN users u ON uc.user_id = u.id "
+        "WHERE u.login IN ('"
+            + escapeString(user_sender->getLogin()) + "', '" 
+            + escapeString(user_recipient->getLogin()) + "') "
+            "GROUP BY uc.chat_id) SELECT chat_id FROM id2 WHERE c2 = 2) "
+            "ORDER BY m.created_at;";
 
     if (mysql_query(&sql_mysql, request_mysql.c_str())) {
         std::cerr << "Ошибка поиска чата load_Chat_P: " << mysql_error(&sql_mysql) << std::endl;
@@ -507,10 +464,14 @@ bool DataBaseMySQL::load_Chat_P(std::shared_ptr<User> user_sender, std::shared_p
 
 //запись в общий чат, проверить перед записью существоваие файла!
 bool DataBaseMySQL::write_Chat_H(std::shared_ptr<User> user_sender, const std::string& mess) {
-    
     // получаем приватный чат ORDER BY id для надежности взять верхний (минимальный) а в методе отображения минимальный отображается
-    std::string request_mysql =  "INSERT INTO messages (chat_id, sender_id, text) VALUES ((SELECT min(id) FROM chats WHERE type = 'common' ORDER BY id LIMIT 1), (SELECT u.id FROM users u WHERE u.login = '"
-    + user_sender->getLogin() + "' LIMIT 1), '" + mess + "');";
+    std::string request_mysql = 
+    "INSERT INTO messages (chat_id, sender_id, text) "
+    "VALUES ("
+    "(SELECT min(id) FROM chats WHERE type = 'common' ORDER BY id LIMIT 1),"
+    "(SELECT u.id FROM users u WHERE u.login = '"
+    + escapeString(user_sender->getLogin()) + "' LIMIT 1), '" 
+    + escapeString(mess) + "');";
     // Выполнение запроса
     if (mysql_query(&sql_mysql, request_mysql.c_str()) != 0) {
         std::cerr << "Ошибка записи БД (MySQL) общего чата в write_Chat_H: " << mysql_error(&sql_mysql) << std::endl;
@@ -522,12 +483,15 @@ bool DataBaseMySQL::write_Chat_H(std::shared_ptr<User> user_sender, const std::s
 
 // Загрузить историю общего чата:  <login, name, сообщение>
 bool DataBaseMySQL::load_Chat_H(std::vector<std::vector<std::string>>& out) {
-    // SELECT u.name, m.text
-    // FROM messages m
-    // JOIN users u ON u.id = m.sender_id
-    // WHERE m.chat_id IN (SELECT min(id) as id_chat_p FROM chats WHERE type = 'common');
 
-    std::string request_mysql =  "SELECT u.login, u.name, m.text FROM messages m JOIN users u ON u.id = m.sender_id WHERE m.chat_id IN (SELECT min(id) as id_chat_p FROM chats WHERE type = 'common') ORDER BY m.created_at;";
+    std::string request_mysql = 
+    "SELECT u.login, u.name, m.text "
+    "FROM messages m "
+    "JOIN users u ON u.id = m.sender_id "
+    "WHERE m.chat_id IN ("
+        "SELECT min(id) as id_chat_p FROM chats WHERE type = 'common') " 
+        "ORDER BY m.created_at;";
+
     if (mysql_query(&sql_mysql, request_mysql.c_str()) != 0) {
         std::cerr << "Ошибка полученияистории общего чата БД (MySQL) load_Chat_H: " << mysql_error(&sql_mysql) << std::endl;
         return false;
@@ -562,4 +526,18 @@ bool DataBaseMySQL::load_Chat_H(std::vector<std::vector<std::string>>& out) {
     mysql_free_result(sql_res);
     sql_res = nullptr;
     return true;
+}
+
+
+        /*=====================================
+                ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ
+        =====================================*/
+
+
+std::string DataBaseMySQL::escapeString(const std::string& str) {
+	char* escaped = new char[str.length() * 2 + 1];
+	mysql_real_escape_string(&sql_mysql, escaped, str.c_str(), str.length());
+	std::string result(escaped);
+	delete[] escaped;
+	return result;
 }
