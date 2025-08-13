@@ -465,7 +465,6 @@ bool DataBaseMySQL::load_Chat_P(std::shared_ptr<User> user_sender, std::shared_p
     + escapeString(user_recipient->getLogin()) + "') "
     "GROUP BY uc.chat_id) SELECT chat_id FROM id2 WHERE c2 = 2) "
     "ORDER BY m.created_at;";
-    std::cerr << "[DEBUG] SQL Query: " << request_mysql << std::endl;
 
     if (mysql_query(&sql_mysql, request_mysql.c_str())) {
         std::cerr << "Ошибка поиска чата load_Chat_P: " << mysql_error(&sql_mysql) << std::endl;

@@ -30,11 +30,11 @@ std::shared_ptr<Message3> console_interface::show_chat_P(const std::vector<std::
     std::string userInput; // Вводимое пользователем знначение
     if (history_chat_P.empty())
     {
-        cout << _GREY_BG << "\nИстория чата с ползователем" << login_friend_User << " пуста\n\n" << _CLEAR << endl;
+        cout << _GREY_BG << "\nИстория чата с ползователем " << name_friend_User << " пуста\n\n" << _CLEAR << endl;
     }
     else
     {
-        cout << _GREY_BG << "\nЧат с ползователем " << login_friend_User << "\n\n" << _CLEAR << endl;
+        cout << _GREY_BG << "\nЧат с ползователем " << name_friend_User << "\n\n" << _CLEAR << endl;
         for (auto mes : history_chat_P)
         {
             if (mes.first == status->getLogin())
@@ -43,7 +43,7 @@ std::shared_ptr<Message3> console_interface::show_chat_P(const std::vector<std::
             }
             else if (mes.first == login_friend_User)
             {
-                cout << _YELLOW << login_friend_User << _CLEAR << "\t" << mes.second  << "\n" << endl;
+                cout << _YELLOW << name_friend_User << _CLEAR << "\t" << mes.second  << "\n" << endl;
             }
             
             else

@@ -46,7 +46,6 @@ void NetworkClient::sendMess(const std::string& message) {
     // message.c_str() - указатель на данные
     // message.size() - длина данных в байтах
     // 0 - флаги (по умолчанию)
-    std::cerr << "NetworkClient::sendMess MESS: " << message << "\n";
     if (send(sock, message.c_str(), message.size(), 0) < 0) {
         throw std::runtime_error("Ошибка отправки");
     }

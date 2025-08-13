@@ -19,7 +19,6 @@ bool MessageHandler::handleNext(const std::shared_ptr<Message>& message) {
 
 // Обработка для Message50 (авторизован или ошибка)
 bool HandlerMessage50::handle(const std::shared_ptr<Message>& message) {
-    std::cerr << &message << "\n";
     // Проверяем, наше ли это сообщение
     if (message->getTupe() != 50) {
         // Не наше - передаем следующему в цепочке
@@ -48,7 +47,6 @@ bool HandlerMessage50::handle(const std::shared_ptr<Message>& message) {
 
 // Обработка для Message51 (Передача данных общего чата)
 bool HandlerMessage51::handle(const std::shared_ptr<Message>& message) {
-    std::cerr << &message << "\n";
     // Проверяем, наше ли это сообщение
     if (message->getTupe() != 51) {
         // Не наше - передаем следующему в цепочке
@@ -64,7 +62,6 @@ bool HandlerMessage51::handle(const std::shared_ptr<Message>& message) {
 
 // Обработка для Message52 (Передача данных приватного чата)
 bool HandlerMessage52::handle(const std::shared_ptr<Message>& message) {
-    std::cerr << &message << "\n";
     // Проверяем, наше ли это сообщение
     if (message->getTupe() != 52) {
         // Не наше - передаем следующему в цепочке
@@ -82,7 +79,6 @@ bool HandlerMessage52::handle(const std::shared_ptr<Message>& message) {
 
 // Обработка для Message53 (Передача списка истории приватных чатов)
 bool HandlerMessage53::handle(const std::shared_ptr<Message>& message) {
-    std::cerr << &message << "\n";
     // Проверяем, наше ли это сообщение
     if (message->getTupe() != 53) {
         // Не наше - передаем следующему в цепочке
@@ -104,7 +100,6 @@ bool HandlerMessage53::handle(const std::shared_ptr<Message>& message) {
 
 // Обработка для Message53 (получить список всех юзеров в чате кому написать)
 bool HandlerMessage54::handle(const std::shared_ptr<Message>& message) {
-    std::cerr << &message << "\n";
     // Проверяем, наше ли это сообщение
     if (message->getTupe() != 54) {
         // Не наше - передаем следующему в цепочке
@@ -120,7 +115,6 @@ bool HandlerMessage54::handle(const std::shared_ptr<Message>& message) {
 
 // Обработка для Message53 (Ответ сервера логин занят)
 bool HandlerMessage55::handle(const std::shared_ptr<Message>& message) {
-    std::cerr << &message << "\n";
     // Проверяем, наше ли это сообщение
     if (message->getTupe() != 55) {
         // Не наше - передаем следующему в цепочке
@@ -139,7 +133,6 @@ bool HandlerMessage55::handle(const std::shared_ptr<Message>& message) {
 
 // Обработка для Message56 (Ответ сервера вернуть имя)
 bool HandlerMessage56::handle(const std::shared_ptr<Message>& message) {
-    std::cerr << message << "\n";
     // Проверяем, наше ли это сообщение
     if (message->getTupe() != 56) {
         // Не наше - передаем следующему в цепочке
@@ -156,7 +149,6 @@ bool HandlerMessage56::handle(const std::shared_ptr<Message>& message) {
 
 // Обработка для Message56 (Ответ сервера вернуть имя)
 bool HandlerErr::handle(const std::shared_ptr<Message>& message) {
-    std::cerr << message << "\n";
     //обрабатываем
     _status->setMenuAuthoriz(MENU_AUTHORIZATION::VOID_REG);
     _status->setMenuChat(MENU_CHAT::VOID);

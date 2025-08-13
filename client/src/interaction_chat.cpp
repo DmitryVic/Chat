@@ -46,7 +46,6 @@ void interaction_chat::start(){
             json j;
             mes->to_json(j);
             _network->sendMess(j.dump());     
-            _II->display_message(j.dump());
             this->getMess();
             if (_status->getMenuAuthoriz() == MENU_AUTHORIZATION::AUTHORIZATION_SUCCESSFUL){
                 std::shared_ptr<Message7> mes2 = std::make_shared<Message7>();
@@ -61,7 +60,6 @@ void interaction_chat::start(){
             std::shared_ptr<Message2> mes = _II->reg(_status);
             json j;
             mes->to_json(j);
-            _II->display_message(j.dump());
             _network->sendMess(j.dump());
             this->getMess();
             if (_status->getMenuAuthoriz() == MENU_AUTHORIZATION::AUTHORIZATION_SUCCESSFUL)
@@ -124,14 +122,6 @@ void interaction_chat::getMess() {
         }
         
         std::string json_str = _network->getMess();
-        _II->display_message(json_str);
-
-        ///////////////////////////////////////////////////////////////////////////////////////
-        std::cerr << "interaction_chat::getMess" << std::endl;
-        _II->display_message(json_str);
-        std::cerr << "Обработка сообщения в interaction_chat::getMess" << std::endl;
-        ///////////////////////////////////////////////////////////////////////////////////////
-
         auto msg = parse_message(json_str);
         
         if (!msg) {
@@ -142,7 +132,6 @@ void interaction_chat::getMess() {
             throw std::runtime_error("Обработка сообщений не удалась");
         }
     } catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
         _II->display_message(e.what());
     }
 }
@@ -250,7 +239,7 @@ void interaction_chat::list_chat_P(){
                 // запросить данные приватного чата
                 std::shared_ptr<Message8> mes = std::make_shared<Message8>();
                 mes->user_sender = this->_status->getLogin();
-                mes->user_recipient = data.first;/////////////////////////////////////////////////
+                mes->user_recipient = data.first;
                 json jj;
                 mes->to_json(jj);
                 _network->sendMess(jj.dump());
