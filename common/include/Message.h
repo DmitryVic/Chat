@@ -1,6 +1,5 @@
 #pragma once
 #include <nlohmann/json.hpp>
-#include "Network.h"
 #include <string>
 #include <variant>
 #include <memory>

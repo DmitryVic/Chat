@@ -1,5 +1,4 @@
 #pragma once
-#include "Network.h"
 #include <string>
 #include <iostream>
 #include <unistd.h>             //базовые функции для работы с системой Linux

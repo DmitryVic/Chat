@@ -1,4 +1,3 @@
-#include "Network.h"
 #include "NetworkServer.h"
 #include <string>
 #include <iostream>
@@ -62,7 +61,7 @@ std::string NetworkServer::getMess() {
     int bytes_read = recv(currentUser.client_socket, buffer, sizeof(buffer), 0);
 
     if (bytes_read <= 0) 
-        throw  std::runtime_error("Ошибка в получении сообщения или закрыто соединение");
+        throw  std::runtime_error("Ошибка в получении сообщения или закрыто соединение\n");
 
     return std::string(buffer, bytes_read);
 }
