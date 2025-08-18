@@ -6,13 +6,15 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <memory>
+#include "dataUserOnline.h"
+#include <vector>
+#include <mutex>
 
-std::string online_user_login;
 
 void chat_start(std::shared_ptr<DataBase> db, 
                std::shared_ptr<NetworkServer> network) {
                 
-    network->acceptClient();
+    
     // Создаем обработчики
     auto Handler1 = std::make_unique<HandlerMessage1>(db, network);
     auto Handler2 = std::make_unique<HandlerMessage2>(db, network);
@@ -39,22 +41,41 @@ void chat_start(std::shared_ptr<DataBase> db,
     Handler2->setNext(std::move(Handler3));
     Handler1->setNext(std::move(Handler2));
 
+    
+    
+    while (true)
+    {
+        int _client_socket = network->acceptClient();
 
+        if (_client_socket)
+        {
+            
+           std::thread t([&, _client_socket]() {
+                currentUser.client_socket = _client_socket;
+                currentUser.online_user_login = "";
+                while (true) {
+                    try {
+                        std::string json_str = network->getMess();
+                        auto msg = parse_message(json_str);
+                        
+                        if (!msg)
+                            throw  std::runtime_error("Ошибка в полученых данных от пользователя, закрываю соединение...");
+                        
+                        if (!Handler1->handle(msg))
+                            throw  std::runtime_error("Ошибка в обработке данных, закрываю соединение...");
+                        
+                    } catch (const std::exception& e) {
+                        std::cerr << e.what();
+                        break;
+                    }
+                }
+                close(currentUser.client_socket);
+            });
+            t.detach();
 
-    while (true) {
-        try {
-            std::string json_str = network->getMess();
-            auto msg = parse_message(json_str);
-            
-            if (!msg)
-                throw  std::runtime_error("Ошибка в полученых данных от пользователя, закрываю соединение...");
-            
-            if (!Handler1->handle(msg))
-                throw  std::runtime_error("Ошибка в обработке данных, закрываю соединение...");
-            
-        } catch (const std::exception& e) {
-            std::cerr << e.what();
-            break;
         }
+
+        
     }
+    
 }

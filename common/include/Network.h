@@ -15,7 +15,7 @@ public:
     Network(){};
     virtual ~Network() = default;
     virtual void start() = 0;
-    virtual void acceptClient() = 0;
-    virtual std::string getMess() = 0;
-    virtual void sendMess(const std::string& message) = 0;
+
+    virtual std::string getMess(int _client_socket) = 0;
+    virtual void sendMess(int _client_socket, const std::string& message) = 0;
 };

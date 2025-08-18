@@ -9,6 +9,7 @@
 #include <memory>
 #include "Core.h"
 #include <utility>
+#include "dataUserOnline.h"
 
 
 bool MessageHandler::handleNext(const std::shared_ptr<Message>& message) {
@@ -33,7 +34,7 @@ bool HandlerMessage1::handle(const std::shared_ptr<Message>& message) {
     bool authSuccess = user && (hashPassword(m1->pass) == user->getPass());
     //Фиксация авторизации
     if (authSuccess)
-        online_user_login = user->getLogin();
+        currentUser.online_user_login = user->getLogin();
     
 
     // Формируем ответ
@@ -79,7 +80,7 @@ bool HandlerMessage2::handle(const std::shared_ptr<Message>& message) {
     std::shared_ptr<User> user = std::make_shared<User>(m2->login, hashPassword(m2->pass), m2->name);
     _db->write_User(user);
     //Фиксация авторизации
-    online_user_login = user->getLogin();
+    currentUser.online_user_login = user->getLogin();
 
     Message50 response;
     response.status_request = true;
@@ -115,7 +116,7 @@ bool HandlerMessage3::handle(const std::shared_ptr<Message>& message){
         throw std::runtime_error("HandlerMessage3: Закрываю соединение...");
     }
 
-    if(online_user_login !=  user_sender->getLogin()){
+    if(currentUser.online_user_login !=  user_sender->getLogin()){
         std::cerr << "Пользователь присылает не верные данные или он не авторизован"  << std::endl;
         //Error: Попытка получить ответ не авторизованного юзера (сообщение 3)"
         // Отправляем ответ об ошибке
@@ -169,7 +170,7 @@ bool HandlerMessage4::handle(const std::shared_ptr<Message>& message){
         throw std::runtime_error("HandlerMessage4: Закрываю соединение...");
     }
 
-    if(online_user_login !=  user_sender->getLogin()){
+    if(currentUser.online_user_login !=  user_sender->getLogin()){
         std::cerr << "Пользователь присылает не верные данные или он не авторизован"  << std::endl;
         // Отправляем ответ об ошибке
         Message50 response;
@@ -207,7 +208,7 @@ bool HandlerMessage5::handle(const std::shared_ptr<Message>& message){
     std::shared_ptr<User> user_sender = _db->search_User(m5->my_login);
 
     //есть ли пользователь в базе и логин залогированного пользователя?
-    if (user_sender && online_user_login == user_sender->getLogin())
+    if (user_sender && currentUser.online_user_login == user_sender->getLogin())
     {
         // получаем данные с БД
         std::vector<std::pair<std::string, std::string>> list_Chat_P = _db->my_chat_P(m5->my_login);
@@ -246,7 +247,7 @@ bool HandlerMessage6::handle(const std::shared_ptr<Message>& message){
     std::shared_ptr<User> user_sender = _db->search_User(m6->my_login);
     
     //есть ли пользователь в базе и логин залогированного пользователя?
-    if (user_sender && online_user_login == user_sender->getLogin())
+    if (user_sender && currentUser.online_user_login == user_sender->getLogin())
     {
         // получаем данные с БД
         std::vector<std::pair<std::string, std::string>> list_Users = _db->list_all_User(m6->my_login);
@@ -284,7 +285,7 @@ bool HandlerMessage7::handle(const std::shared_ptr<Message>& message){
     std::shared_ptr<User> user = _db->search_User(m7->my_login);
 
     //есть ли пользователь в базе и логин залогированного пользователя?
-    if (user && online_user_login == user->getLogin())
+    if (user && currentUser.online_user_login == user->getLogin())
     {
         // Отправляем ответ
         Message56 mess_class;
@@ -330,7 +331,7 @@ bool HandlerMessage8::handle(const std::shared_ptr<Message>& message){
         throw std::runtime_error("HandlerMessage3: Закрываю соединение...");
     }
 
-    if(online_user_login !=  user_sender->getLogin()){
+    if(currentUser.online_user_login !=  user_sender->getLogin()){
         std::cerr << "Пользователь присылает не верные данные или он не авторизован"  << std::endl;
         //Error: Попытка получить ответ не авторизованного юзера (сообщение 3)"
         // Отправляем ответ об ошибке
@@ -383,7 +384,7 @@ bool HandlerMessage9::handle(const std::shared_ptr<Message>& message){
         throw std::runtime_error("HandlerMessage4: Закрываю соединение...");
     }
 
-    if(online_user_login !=  user_sender->getLogin()){
+    if(currentUser.online_user_login !=  user_sender->getLogin()){
         std::cerr << "Пользователь присылает не верные данные или он не авторизован"  << std::endl;
         // Отправляем ответ об ошибке
         Message50 response;

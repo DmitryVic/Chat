@@ -17,9 +17,10 @@ if(UNIX)
     set(CMAKE_CXX_STANDARD 17)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-
+    find_package(Threads REQUIRED)
 
     add_executable(chat_server
+        src/dataUserOnline.cpp    
         src/main.cpp
         src/Core.cpp
         src/DB_MySQL.cpp
@@ -30,7 +31,8 @@ if(UNIX)
     target_compile_definitions(chat_server PRIVATE SET_GLOBAL_LOCALE_LINUX)
     
     # линковка с общей библиотекой
-    target_link_libraries(chat_server PRIVATE common ${MYSQL_LIBRARY})
+    #target_link_libraries(chat_server PRIVATE common ${MYSQL_LIBRARY})
+    target_link_libraries(chat_server PRIVATE common ${MYSQL_LIBRARY} Threads::Threads)
 
     #Добавляем пути к  заголовкам сервера
     target_include_directories(chat_server PRIVATE 

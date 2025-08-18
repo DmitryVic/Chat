@@ -7,6 +7,7 @@
 #include <memory>
 #include "Core.h"
 #include <utility>
+#include "dataUserOnline.h"
 
 
 // Базовый класс обработчика - метод цепочки ответственности

@@ -6,7 +6,7 @@
 #include <sys/socket.h>         //для работы с сокетами
 #include <netinet/in.h>         //содержит структуры и константы для работы с протоколами
 #include <stdexcept>            //исключения
-
+#include "dataUserOnline.h"
 
 
 
@@ -39,17 +39,19 @@ void NetworkServer::start() {
 }
 
 
-void NetworkServer::acceptClient()  {
+int NetworkServer::acceptClient()  {
     sockaddr_in client_addr;
     socklen_t addr_len = sizeof(client_addr);
     
     // Сохраняем клиентский сокет в _client_socket
-    _client_socket = accept(_server_fd, (sockaddr*)&client_addr, &addr_len);
+    int _client_socket = accept(_server_fd, (sockaddr*)&client_addr, &addr_len);
 
-    if (_client_socket < 0)
-        throw std::runtime_error("Ошибка подключения клиента");
+    if (_client_socket < 0){
+        return 0;
+    }
     
     std::cerr << "Клиент подключен к сокету: " << _client_socket << std::endl;
+    return _client_socket;
 }
 
 
@@ -57,7 +59,7 @@ void NetworkServer::acceptClient()  {
 std::string NetworkServer::getMess() {
     char buffer[1024] = {0};
 
-    int bytes_read = recv(_client_socket, buffer, sizeof(buffer), 0);
+    int bytes_read = recv(currentUser.client_socket, buffer, sizeof(buffer), 0);
 
     if (bytes_read <= 0) 
         throw  std::runtime_error("Ошибка в получении сообщения или закрыто соединение");
@@ -67,7 +69,7 @@ std::string NetworkServer::getMess() {
 
 
 void NetworkServer::sendMess(const std::string& mess)  {
-    int result = send(_client_socket, mess.c_str(), mess.size(), 0);
+    int result = send(currentUser.client_socket, mess.c_str(), mess.size(), 0);
     if (result <= 0) {
         throw std::runtime_error("Ошибка отправки Mess");
     }
