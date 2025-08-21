@@ -53,12 +53,12 @@ int main() {
     // Перенаправляем cerr в файл
     std::cerr.rdbuf(log.rdbuf());
 
-    std::shared_ptr<DataBase> db = make_shared<DataBaseMySQL>();
+    
     std::shared_ptr<NetworkServer> network = std::make_shared<NetworkServer>(PORT);
     network->start();
     try {
         
-        chat_start(db, network);
+        chat_start(network);
 
     } catch (const exception& e) {
         std::cerr << "Ошибка: " << e.what() << std::endl;

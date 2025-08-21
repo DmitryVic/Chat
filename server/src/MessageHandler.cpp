@@ -29,7 +29,7 @@ bool HandlerMessage1::handle(const std::shared_ptr<Message>& message) {
     auto m1 = std::dynamic_pointer_cast<Message1>(message);
     
     // Логика обработки
-    std::shared_ptr<User> user = _db->search_User(m1->login);
+    std::shared_ptr<User> user = currentUser.db->search_User(m1->login);
 
     bool authSuccess = user && (hashPassword(m1->pass) == user->getPass());
     //Фиксация авторизации
@@ -66,7 +66,7 @@ bool HandlerMessage2::handle(const std::shared_ptr<Message>& message) {
         return true;
     }
     
-    if (_db->search_User(m2->login)) {
+    if (currentUser.db->search_User(m2->login)) {
         Message55 response;
         response.status_request = false;
         json j;
@@ -78,7 +78,7 @@ bool HandlerMessage2::handle(const std::shared_ptr<Message>& message) {
     
 
     std::shared_ptr<User> user = std::make_shared<User>(m2->login, hashPassword(m2->pass), m2->name);
-    _db->write_User(user);
+    currentUser.db->write_User(user);
     //Фиксация авторизации
     currentUser.online_user_login = user->getLogin();
 
@@ -100,8 +100,8 @@ bool HandlerMessage3::handle(const std::shared_ptr<Message>& message){
     }
     
     auto m3 = std::dynamic_pointer_cast<Message3>(message);
-    std::shared_ptr<User> user_sender = _db->search_User(m3->user_sender);
-    std::shared_ptr<User> user_recipient = _db->search_User(m3->user_recipient);
+    std::shared_ptr<User> user_sender = currentUser.db->search_User(m3->user_sender);
+    std::shared_ptr<User> user_recipient = currentUser.db->search_User(m3->user_recipient);
     
     if (user_sender == nullptr || user_recipient == nullptr)
     {
@@ -128,9 +128,9 @@ bool HandlerMessage3::handle(const std::shared_ptr<Message>& message){
         throw std::runtime_error("HandlerMessage3: Закрываю соединение...");
     }
 
-    _db->write_Chat_P(user_sender, user_recipient, m3->mess);
+    currentUser.db->write_Chat_P(user_sender, user_recipient, m3->mess);
     std::vector<std::pair<std::string, std::string>> history_chat_P; 
-    _db->load_Chat_P(user_sender, user_recipient, history_chat_P);
+    currentUser.db->load_Chat_P(user_sender, user_recipient, history_chat_P);
 
     // Отправляем ответ
     Message52 mess_class;
@@ -156,7 +156,7 @@ bool HandlerMessage4::handle(const std::shared_ptr<Message>& message){
     }
 
     auto m4 = std::dynamic_pointer_cast<Message4>(message);
-    std::shared_ptr<User> user_sender = _db->search_User(m4->login_user_sender);
+    std::shared_ptr<User> user_sender = currentUser.db->search_User(m4->login_user_sender);
     
     if (user_sender == nullptr)
     {
@@ -181,9 +181,9 @@ bool HandlerMessage4::handle(const std::shared_ptr<Message>& message){
         throw std::runtime_error("HandlerMessage4: Закрываю соединение...");
     }
 
-    _db->write_Chat_H(user_sender, m4->mess);
+    currentUser.db->write_Chat_H(user_sender, m4->mess);
     std::vector<std::vector<std::string>> history_chat_H; 
-    _db->load_Chat_H(history_chat_H);
+    currentUser.db->load_Chat_H(history_chat_H);
     
     // Отправляем ответ
     Message51 mess_class;
@@ -205,13 +205,13 @@ bool HandlerMessage5::handle(const std::shared_ptr<Message>& message){
 
     auto m5 = std::dynamic_pointer_cast<Message5>(message);
     //получаем пользователя и проверяем на nullptr
-    std::shared_ptr<User> user_sender = _db->search_User(m5->my_login);
+    std::shared_ptr<User> user_sender = currentUser.db->search_User(m5->my_login);
 
     //есть ли пользователь в базе и логин залогированного пользователя?
     if (user_sender && currentUser.online_user_login == user_sender->getLogin())
     {
         // получаем данные с БД
-        std::vector<std::pair<std::string, std::string>> list_Chat_P = _db->my_chat_P(m5->my_login);
+        std::vector<std::pair<std::string, std::string>> list_Chat_P = currentUser.db->my_chat_P(m5->my_login);
         
         // Отправляем ответ
         Message53 mess_class;
@@ -244,13 +244,13 @@ bool HandlerMessage6::handle(const std::shared_ptr<Message>& message){
 
     auto m6 = std::dynamic_pointer_cast<Message6>(message);
 
-    std::shared_ptr<User> user_sender = _db->search_User(m6->my_login);
+    std::shared_ptr<User> user_sender = currentUser.db->search_User(m6->my_login);
     
     //есть ли пользователь в базе и логин залогированного пользователя?
     if (user_sender && currentUser.online_user_login == user_sender->getLogin())
     {
         // получаем данные с БД
-        std::vector<std::pair<std::string, std::string>> list_Users = _db->list_all_User(m6->my_login);
+        std::vector<std::pair<std::string, std::string>> list_Users = currentUser.db->list_all_User(m6->my_login);
         
         // Отправляем ответ
         Message54 mess_class;
@@ -282,7 +282,7 @@ bool HandlerMessage7::handle(const std::shared_ptr<Message>& message){
 
     auto m7 = std::dynamic_pointer_cast<Message7>(message);
     //получаем пользователя и проверяем на nullptr
-    std::shared_ptr<User> user = _db->search_User(m7->my_login);
+    std::shared_ptr<User> user = currentUser.db->search_User(m7->my_login);
 
     //есть ли пользователь в базе и логин залогированного пользователя?
     if (user && currentUser.online_user_login == user->getLogin())
@@ -315,8 +315,8 @@ bool HandlerMessage8::handle(const std::shared_ptr<Message>& message){
     }
     
     auto m8 = std::dynamic_pointer_cast<Message8>(message);
-    std::shared_ptr<User> user_sender = _db->search_User(m8->user_sender);
-    std::shared_ptr<User> user_recipient = _db->search_User(m8->user_recipient);
+    std::shared_ptr<User> user_sender = currentUser.db->search_User(m8->user_sender);
+    std::shared_ptr<User> user_recipient = currentUser.db->search_User(m8->user_recipient);
     
     if (user_sender == nullptr || user_recipient == nullptr)
     {
@@ -344,7 +344,7 @@ bool HandlerMessage8::handle(const std::shared_ptr<Message>& message){
     }
 
     std::vector<std::pair<std::string, std::string>> history_chat_P; 
-    _db->load_Chat_P(user_sender, user_recipient, history_chat_P);
+    currentUser.db->load_Chat_P(user_sender, user_recipient, history_chat_P);
 
     // Отправляем ответ
     Message52 mess_class;
@@ -370,7 +370,7 @@ bool HandlerMessage9::handle(const std::shared_ptr<Message>& message){
     }
 
     auto m9 = std::dynamic_pointer_cast<Message9>(message);
-    std::shared_ptr<User> user_sender = _db->search_User(m9->user_sender);
+    std::shared_ptr<User> user_sender = currentUser.db->search_User(m9->user_sender);
     
     if (user_sender == nullptr)
     {
@@ -396,7 +396,7 @@ bool HandlerMessage9::handle(const std::shared_ptr<Message>& message){
     }
 
     std::vector<std::vector<std::string>> history_chat_H; 
-    _db->load_Chat_H(history_chat_H);
+    currentUser.db->load_Chat_H(history_chat_H);
     
     // Отправляем ответ
     Message51 mess_class;

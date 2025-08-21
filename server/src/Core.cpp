@@ -2,6 +2,7 @@
 #include "NetworkServer.h"
 #include "MessageHandler.h"
 #include "BD.h"
+#include "BD_MySQL.h"
 #include "Message.h"
 #include <iostream>
 #include <nlohmann/json.hpp>
@@ -11,21 +12,20 @@
 #include <mutex>
 
 
-void chat_start(std::shared_ptr<DataBase> db, 
-               std::shared_ptr<NetworkServer> network) {
+void chat_start(std::shared_ptr<NetworkServer> network) {
                 
     
     // Создаем обработчики
-    auto Handler1 = std::make_unique<HandlerMessage1>(db, network);
-    auto Handler2 = std::make_unique<HandlerMessage2>(db, network);
-    auto Handler3 = std::make_unique<HandlerMessage3>(db, network);
-    auto Handler4 = std::make_unique<HandlerMessage4>(db, network);
-    auto Handler5 = std::make_unique<HandlerMessage5>(db, network);
-    auto Handler6 = std::make_unique<HandlerMessage6>(db, network);
-    auto Handler7 = std::make_unique<HandlerMessage7>(db, network);
-    auto Handler8 = std::make_unique<HandlerMessage8>(db, network);
-    auto Handler9 = std::make_unique<HandlerMessage9>(db, network);
-    auto messageError = std::make_unique<HandlerErr>(db, network);
+    auto Handler1 = std::make_unique<HandlerMessage1>(network);
+    auto Handler2 = std::make_unique<HandlerMessage2>(network);
+    auto Handler3 = std::make_unique<HandlerMessage3>(network);
+    auto Handler4 = std::make_unique<HandlerMessage4>(network);
+    auto Handler5 = std::make_unique<HandlerMessage5>(network);
+    auto Handler6 = std::make_unique<HandlerMessage6>(network);
+    auto Handler7 = std::make_unique<HandlerMessage7>(network);
+    auto Handler8 = std::make_unique<HandlerMessage8>(network);
+    auto Handler9 = std::make_unique<HandlerMessage9>(network);
+    auto messageError = std::make_unique<HandlerErr>(network);
 
     // Строим цепочку С КОНЦА:  В ДРУГОМ ПОРЯДКЕ НЕЛЬЗЯ move ПЕРЕДАЕТ ВЛАДЕНИЕ ПОСЛЕ 1 ПЕРЕМЕШЕНИЯ ПЕРЕДАДИМ NULLPTR 
     messageError->setNext(nullptr);  
@@ -51,8 +51,18 @@ void chat_start(std::shared_ptr<DataBase> db,
         {
             
            std::thread t([&, _client_socket]() {
-                currentUser.client_socket = _client_socket;
-                currentUser.online_user_login = "";
+                
+                try
+                {
+                    currentUser.client_socket = _client_socket;
+                    currentUser.online_user_login = "";
+                    currentUser.db = std::make_unique<DataBaseMySQL>();
+                }  
+                catch(const std::exception& e)
+                {
+                    std::cerr << e.what() << '\n';
+                }
+
                 while (true) {
                     try {
                         std::string json_str = network->getMess();
@@ -66,16 +76,16 @@ void chat_start(std::shared_ptr<DataBase> db,
                         
                     } catch (const std::exception& e) {
                         std::cerr << e.what();
+                        currentUser.db.reset(); // Явное освобождение
                         break;
                     }
                 }
                 close(currentUser.client_socket);
+
             });
+
             t.detach();
-
         }
-
-        
     }
     
 }

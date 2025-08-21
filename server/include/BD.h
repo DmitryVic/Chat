@@ -12,7 +12,7 @@ private:
 
 public:
         DataBase(){}
-        ~DataBase() = default;
+        virtual ~DataBase() = default;
 
         //=================================================================
         // БД: запись и чтение структур

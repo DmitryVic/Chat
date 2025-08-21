@@ -13,7 +13,6 @@
 // Базовый класс обработчика - метод цепочки ответственности
 class MessageHandler {
 protected:
-    std::shared_ptr<DataBase> _db;
     std::shared_ptr<NetworkServer> _network;
     //Паттерн Цепочка ответственности каждый будет пытаться обработать, но сможет только 1
     std::unique_ptr<MessageHandler> _next;
@@ -21,9 +20,8 @@ protected:
 
     
 public:
-    MessageHandler(std::shared_ptr<DataBase> db, 
-                   std::shared_ptr<NetworkServer> network)
-        : _db(db), _network(network), _next(nullptr) {}
+    MessageHandler(std::shared_ptr<NetworkServer> network)
+        : _network(network), _next(nullptr) {}
     
     virtual ~MessageHandler() = default;
     

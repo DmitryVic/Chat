@@ -107,6 +107,7 @@ DataBaseMySQL::~DataBaseMySQL(){
     }
     // Закрытие соединения
     mysql_close(&sql_mysql);
+    std::cerr << "БД (MySQL) закрываю соединение!" << std::endl;
 }
 
 
