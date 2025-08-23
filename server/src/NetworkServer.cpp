@@ -63,9 +63,9 @@ std::string NetworkServer::getMess() {
     if (bytes_read <= 0) 
         throw  std::runtime_error("Ошибка в получении сообщения или закрыто соединение клиентом!");
 
-    // Добавил логирование сообщений пользователей JSON в отдельный файл, так как это было в условии задачи
-    // данный функционал считаю избыточным, поэтому сделал логирование в отдельный файл
-    // Логируются все сообщения, включая некорректные JSON (хотя для отладки полезно, но не в релизной версии, но до нее еще далеко :)
+    // Логирование сообщений пользователей JSON (для отладки) в отдельный файл
+    //Для логирования только сообщений (не JSON) можно было добавить строку  get_logger().logMessageUser(сообщение); 
+    //в методы handle классов HandlerMessage№, но логирование JSON в данном случае мне показалось полезнее для выявления ошибок.
     std::string log_mess_socket = "Принято сообщение от сокета " + std::to_string(currentUser.client_socket) + ": \t" + std::string(buffer, bytes_read);
     get_logger().logMessageUser(log_mess_socket);
     std::cout << get_logger().getLastLineLogUsers() << std::endl;
@@ -77,9 +77,9 @@ std::string NetworkServer::getMess() {
 void NetworkServer::sendMess(const std::string& mess)  {
     int result = send(currentUser.client_socket, mess.c_str(), mess.size(), 0);
 
-    // Добавил логирование сообщений пользователей JSON в отдельный файл, так как это было в условии задачи
-    // данный функционал считаю избыточным, поэтому сделал логирование в отдельный файл
-    // Логируются все сообщения, включая некорректные JSON (хотя для отладки полезно, но не в релизной версии, но до нее еще далеко :)
+    // Логирование сообщений пользователей JSON (для отладки) в отдельный файл
+    //Для логирования только сообщений (не JSON) можно было добавить строку  get_logger().logMessageUser(сообщение); 
+    //в методы handle классов HandlerMessage№, но логирование JSON в данном случае мне показалось полезнее для выявления ошибок.
     std::string log_mess_socket = "Отправка сообщение от сокета " + std::to_string(currentUser.client_socket) + ": \t" + mess;
     get_logger().logMessageUser(log_mess_socket);
     std::cout << get_logger().getLastLineLogUsers() << std::endl;
