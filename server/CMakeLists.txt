@@ -26,6 +26,7 @@ if(UNIX)
         src/DB_MySQL.cpp
         src/NetworkServer.cpp
         src/MessageHandler.cpp
+        src/Logger.cpp
     )
 
     target_compile_definitions(chat_server PRIVATE SET_GLOBAL_LOCALE_LINUX)

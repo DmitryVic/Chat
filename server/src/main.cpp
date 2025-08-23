@@ -12,14 +12,14 @@
 #include <memory>
 #include <fstream>
 #include <filesystem>
+#include "Logger.h"
+#include <exception>
 
 using namespace std;
 using json = nlohmann::json;
 
 #define PORT 7777
 
-std::string LOG_F = "file/log.txt";
-namespace fs = std::filesystem;
 
 int main() {
     
@@ -32,40 +32,22 @@ int main() {
         std::locale::global(std::locale("ru_RU.UTF-8"));
     } catch (const std::exception& e) {
         std::cerr << "Locale error: " << e.what() << std::endl;
-        std::locale::global(std::locale("C.UTF-8")); // Fallback
+        std::locale::global(std::locale("C.UTF-8"));
     }
     #endif
 
-    auto dir_path = std::filesystem::path(LOG_F).parent_path();
-    if (!dir_path.empty() && !std::filesystem::exists(dir_path)) {
-        std::filesystem::create_directories(dir_path);
-    }
-
-    // Сохраняем оригинальный буфер cerr
-    std::streambuf* original_cerr_buf = std::cerr.rdbuf();
-    
-    std::ofstream log(LOG_F);
-    if (!log) {
-        std::cerr << "Ошибка открытия файла!\n";
-        return 1;
-    }
-
-    // Перенаправляем cerr в файл
-    std::cerr.rdbuf(log.rdbuf());
-
-    
-    std::shared_ptr<NetworkServer> network = std::make_shared<NetworkServer>(PORT);
-    network->start();
     try {
         
+        get_logger() << "Старт сервера (main) ...";
+
+        std::shared_ptr<NetworkServer> network = std::make_shared<NetworkServer>(PORT);
+        network->start();
         chat_start(network);
 
     } catch (const exception& e) {
         std::cerr << "Ошибка: " << e.what() << std::endl;
+        return 1;
     }
-
-    // Восстанавливаем стандартный поток логов
-    std::cerr.rdbuf(original_cerr_buf);
 
     return 0;
 }

@@ -10,6 +10,7 @@
 #include "Core.h"
 #include <utility>
 #include "dataUserOnline.h"
+#include "Logger.h"
 
 
 bool MessageHandler::handleNext(const std::shared_ptr<Message>& message) {
@@ -105,7 +106,7 @@ bool HandlerMessage3::handle(const std::shared_ptr<Message>& message){
     
     if (user_sender == nullptr || user_recipient == nullptr)
     {
-        std::cerr << "ошибка бд: "  << std::endl;
+        get_logger() << "Ошибка БД - HandlerMessage3::handle";
         //Error: Не верные данные авторизации авторизованного юзера (сообщение 3)
         // Отправляем ответ об ошибке
         Message50 response;
@@ -117,7 +118,7 @@ bool HandlerMessage3::handle(const std::shared_ptr<Message>& message){
     }
 
     if(currentUser.online_user_login !=  user_sender->getLogin()){
-        std::cerr << "Пользователь присылает не верные данные или он не авторизован"  << std::endl;
+        get_logger() << "Пользователь присылает не верные данные или он не авторизован";
         //Error: Попытка получить ответ не авторизованного юзера (сообщение 3)"
         // Отправляем ответ об ошибке
         Message50 response;
@@ -160,7 +161,7 @@ bool HandlerMessage4::handle(const std::shared_ptr<Message>& message){
     
     if (user_sender == nullptr)
     {
-        std::cerr << "Error: Не верные данные авторизации авторизованного юзера (сообщение 4)";
+        get_logger() << "Error: Не верные данные авторизации авторизованного юзера (сообщение 4)";
         // Отправляем ответ об ошибке
         Message50 response;
         response.status_request = false;
@@ -171,7 +172,7 @@ bool HandlerMessage4::handle(const std::shared_ptr<Message>& message){
     }
 
     if(currentUser.online_user_login !=  user_sender->getLogin()){
-        std::cerr << "Пользователь присылает не верные данные или он не авторизован"  << std::endl;
+        get_logger() << "Пользователь присылает не верные данные или он не авторизован";
         // Отправляем ответ об ошибке
         Message50 response;
         response.status_request = false;
@@ -223,7 +224,7 @@ bool HandlerMessage5::handle(const std::shared_ptr<Message>& message){
     }
     
     // Отправляем ответ об ошибке
-    std::cerr << "Пользователь присылает не верные данные или он не авторизован"  << std::endl;
+    get_logger() << "Пользователь присылает не верные данные или он не авторизован";
     // Отправляем ответ об ошибке
     Message50 response;
     response.status_request = false;
@@ -262,7 +263,7 @@ bool HandlerMessage6::handle(const std::shared_ptr<Message>& message){
     }
     
     // Отправляем ответ об ошибке
-    std::cerr << "Пользователь присылает не верные данные или он не авторизован"  << std::endl;
+    get_logger() << "Пользователь присылает не верные данные или он не авторизован";
     // Отправляем ответ об ошибке
     Message50 response;
     response.status_request = false;
@@ -297,7 +298,7 @@ bool HandlerMessage7::handle(const std::shared_ptr<Message>& message){
     }
     
     // Отправляем ответ об ошибке
-    std::cerr << "Ошибка, позможные причины:\n- Пользователь присылает не верные данные\n- Не авторизован\n- Нет данных в БД"  << std::endl;
+    get_logger() << "Ошибка, позможные причины:\n- Пользователь присылает не верные данные\n- Не авторизован\n- Нет данных в БД";
     // Отправляем ответ об ошибке
     Message50 response;
     response.status_request = false;
@@ -320,7 +321,7 @@ bool HandlerMessage8::handle(const std::shared_ptr<Message>& message){
     
     if (user_sender == nullptr || user_recipient == nullptr)
     {
-        std::cerr << "ошибка бд: HandlerMessage8::handle"  << std::endl;
+        get_logger() << "ошибка бд: HandlerMessage8::handle";
         //Error: Не верные данные авторизации авторизованного юзера (сообщение 3)
         // Отправляем ответ об ошибке
         Message50 response;
@@ -332,7 +333,7 @@ bool HandlerMessage8::handle(const std::shared_ptr<Message>& message){
     }
 
     if(currentUser.online_user_login !=  user_sender->getLogin()){
-        std::cerr << "Пользователь присылает не верные данные или он не авторизован"  << std::endl;
+        get_logger() << "Пользователь присылает не верные данные или он не авторизован";
         //Error: Попытка получить ответ не авторизованного юзера (сообщение 3)"
         // Отправляем ответ об ошибке
         Message50 response;
@@ -374,7 +375,7 @@ bool HandlerMessage9::handle(const std::shared_ptr<Message>& message){
     
     if (user_sender == nullptr)
     {
-        std::cerr << "Error: Не верные данные авторизации авторизованного юзера (сообщение 4)";
+        get_logger() << "Error: Не верные данные авторизации авторизованного юзера (сообщение 4)";
         // Отправляем ответ об ошибке
         Message50 response;
         response.status_request = false;
@@ -385,7 +386,7 @@ bool HandlerMessage9::handle(const std::shared_ptr<Message>& message){
     }
 
     if(currentUser.online_user_login !=  user_sender->getLogin()){
-        std::cerr << "Пользователь присылает не верные данные или он не авторизован"  << std::endl;
+        get_logger() << "Пользователь присылает не верные данные или он не авторизован";
         // Отправляем ответ об ошибке
         Message50 response;
         response.status_request = false;
@@ -410,7 +411,7 @@ bool HandlerMessage9::handle(const std::shared_ptr<Message>& message){
 
 // Обработчик для неизвестных сообщений
 bool HandlerErr::handle(const std::shared_ptr<Message>& message) {
-    std::cerr << "Неизвестный тип сообщения: " << message->getTupe() << std::endl;
+    get_logger() << "Неизвестный тип сообщения: " << message->getTupe();
     
     Message50 response;
     response.status_request = false;

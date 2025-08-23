@@ -6,7 +6,7 @@
 #include <netinet/in.h>         //содержит структуры и константы для работы с протоколами
 #include <stdexcept>            //исключения
 #include "dataUserOnline.h"
-
+#include "Logger.h"
 
 
 void NetworkServer::start() {
@@ -33,7 +33,7 @@ void NetworkServer::start() {
         throw  std::runtime_error("Ошибка при прослушивании сокета!");
     }
 
-    std::cerr << "Сервер прослушивание на порту: " << _port << std::endl;
+    get_logger() << "Сервер прослушивание на порту: " + std::to_string(_port);
 
 }
 
@@ -49,7 +49,7 @@ int NetworkServer::acceptClient()  {
         return 0;
     }
     
-    std::cerr << "Клиент подключен к сокету: " << _client_socket << std::endl;
+    get_logger() << "Клиент подключен к сокету: " + std::to_string(_client_socket);
     return _client_socket;
 }
 
@@ -61,14 +61,29 @@ std::string NetworkServer::getMess() {
     int bytes_read = recv(currentUser.client_socket, buffer, sizeof(buffer), 0);
 
     if (bytes_read <= 0) 
-        throw  std::runtime_error("Ошибка в получении сообщения или закрыто соединение\n");
+        throw  std::runtime_error("Ошибка в получении сообщения или закрыто соединение клиентом!");
 
+    // Добавил логирование сообщений пользователей JSON в отдельный файл, так как это было в условии задачи
+    // данный функционал считаю избыточным, поэтому сделал логирование в отдельный файл
+    // Логируются все сообщения, включая некорректные JSON (хотя для отладки полезно, но не в релизной версии, но до нее еще далеко :)
+    std::string log_mess_socket = "Принято сообщение от сокета " + std::to_string(currentUser.client_socket) + ": \t" + std::string(buffer, bytes_read);
+    get_logger().logMessageUser(log_mess_socket);
+    std::cout << get_logger().getLastLineLogUsers() << std::endl;
+    
     return std::string(buffer, bytes_read);
 }
 
 
 void NetworkServer::sendMess(const std::string& mess)  {
     int result = send(currentUser.client_socket, mess.c_str(), mess.size(), 0);
+
+    // Добавил логирование сообщений пользователей JSON в отдельный файл, так как это было в условии задачи
+    // данный функционал считаю избыточным, поэтому сделал логирование в отдельный файл
+    // Логируются все сообщения, включая некорректные JSON (хотя для отладки полезно, но не в релизной версии, но до нее еще далеко :)
+    std::string log_mess_socket = "Отправка сообщение от сокета " + std::to_string(currentUser.client_socket) + ": \t" + mess;
+    get_logger().logMessageUser(log_mess_socket);
+    std::cout << get_logger().getLastLineLogUsers() << std::endl;
+
     if (result <= 0) {
         throw std::runtime_error("Ошибка отправки Mess");
     }

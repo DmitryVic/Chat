@@ -6,8 +6,7 @@
 #include <string>
 #include <filesystem>
 #include <mysql/mysql.h>
-
-namespace fs = std::filesystem;
+#include "Logger.h"
 
 
 DataBaseMySQL::DataBaseMySQL()
@@ -16,14 +15,14 @@ DataBaseMySQL::DataBaseMySQL()
 
     // Подключение
     if (!mysql_real_connect(&sql_mysql, "localhost", this->SQL_USER, this->SQL_PASS, this->SQL_BD, 0, NULL, 0)) {
-        std::cerr << "Ошибка подключения БД (MySQL): " << mysql_error(&sql_mysql) << std::endl;
+        get_logger() << "Ошибка подключения БД (MySQL): " << mysql_error(&sql_mysql);
         throw "Ошибка подключения БД (MySQL) - исключение конструктора";
     }
-    std::cerr << "Подключение БД (MySQL) успешно!" << std::endl;
+    get_logger() << "Подключение БД (MySQL) успешно!";
 
     // Кодировка
     mysql_set_character_set(&sql_mysql, "utf8");
-    std::cerr << "Кодировка БД (MySQL): " << mysql_character_set_name(&sql_mysql) << std::endl;
+    get_logger() << "Кодировка БД (MySQL): " << mysql_character_set_name(&sql_mysql);
 
     // Создание таблицы users
     if (mysql_query(&sql_mysql, "CREATE TABLE IF NOT EXISTS users(id INT AUTO_INCREMENT PRIMARY KEY, login VARCHAR(30) UNIQUE NOT NULL, name VARCHAR(30), surname VARCHAR(30), email VARCHAR(50) UNIQUE);") != 0) {
@@ -52,7 +51,7 @@ DataBaseMySQL::DataBaseMySQL()
     //создание чата общего если его нет
     std::string request_mysql =  "SELECT id FROM chats WHERE type = 'common';";
     if (mysql_query(&sql_mysql, request_mysql.c_str()) != 0) {
-        std::cerr << "Ошибка БД (MySQL) не прошел запрос получения информации общего чата при инициализации БД: " << std::string(mysql_error(&sql_mysql)) << std::endl;
+        get_logger() << "Ошибка БД (MySQL) не прошел запрос получения информации общего чата при инициализации БД: " << mysql_error(&sql_mysql);
         throw "Ошибка БД (MySQL) не прошел запрос получения информации общего чата при инициализации БД: " + std::string(mysql_error(&sql_mysql));
     }
 
@@ -67,7 +66,7 @@ DataBaseMySQL::DataBaseMySQL()
         // Нет результатов создаем общий чат
         request_mysql =  "INSERT INTO chats (type) VALUES ('common');";
         if (mysql_query(&sql_mysql, request_mysql.c_str()) != 0) {
-            std::cerr << "Ошибка БД (MySQL) создания общего чата: " << std::string(mysql_error(&sql_mysql)) << std::endl;
+            get_logger() << "Ошибка БД (MySQL) создания общего чата: " << mysql_error(&sql_mysql);
             throw "Ошибка БД (MySQL) создания общего чата: " + std::string(mysql_error(&sql_mysql));
         }
     }
@@ -78,7 +77,7 @@ DataBaseMySQL::DataBaseMySQL()
             sql_res = nullptr;
             request_mysql =  "INSERT INTO chats (type) VALUES ('common');";
             if (mysql_query(&sql_mysql, request_mysql.c_str()) != 0) {
-                std::cerr << "Ошибка БД (MySQL) создания общего чата: " << std::string(mysql_error(&sql_mysql)) << std::endl;
+                get_logger() << "Ошибка БД (MySQL) создания общего чата: " << mysql_error(&sql_mysql);
                 throw "Ошибка БД (MySQL) создания общего чата: " + std::string(mysql_error(&sql_mysql));
             }
         }
@@ -107,7 +106,7 @@ DataBaseMySQL::~DataBaseMySQL(){
     }
     // Закрытие соединения
     mysql_close(&sql_mysql);
-    std::cerr << "БД (MySQL) закрываю соединение!" << std::endl;
+    get_logger() << "БД (MySQL) закрываю соединение!";
 }
 
 
@@ -127,7 +126,7 @@ void DataBaseMySQL::write_User(std::shared_ptr<User> user) {
     + "\");";
 
     if (mysql_query(&sql_mysql, request_mysql.c_str()) != 0) {
-        std::cerr << "Ошибка БД (MySQL) запись в таблицу users: " << std::string(mysql_error(&sql_mysql)) << std::endl;
+        get_logger() << "Ошибка БД (MySQL) запись в таблицу users: " << mysql_error(&sql_mysql);
         throw "Ошибка БД (MySQL) запись в таблицу users: " + std::string(mysql_error(&sql_mysql));
     }
 
@@ -140,7 +139,7 @@ void DataBaseMySQL::write_User(std::shared_ptr<User> user) {
     + "\";";
 
     if (mysql_query(&sql_mysql, request_mysql.c_str()) != 0) {
-        std::cerr << "Ошибка БД (MySQL) запись в таблицу user_passwords: " << std::string(mysql_error(&sql_mysql)) << std::endl;
+        get_logger() << "Ошибка БД (MySQL) запись в таблицу user_passwords: " << mysql_error(&sql_mysql);
         throw "Ошибка БД (MySQL) запись в таблицу user_passwords: " + std::string(mysql_error(&sql_mysql));
     }
 }
@@ -156,7 +155,7 @@ std::shared_ptr<User> DataBaseMySQL::search_User(const std::string& log){
 
     // Выполнение запроса
     if (mysql_query(&sql_mysql, request_mysql.c_str()) != 0) {
-        std::cerr << "Ошибка поиска пользователя в БД (MySQL): " << mysql_error(&sql_mysql) << std::endl;
+        get_logger() << "Ошибка поиска пользователя в БД (MySQL): " << mysql_error(&sql_mysql);
         throw "Ошибка поиска пользователя в БД (MySQL): " + std::string(mysql_error(&sql_mysql));
     }
 
@@ -207,7 +206,7 @@ std::vector<std::pair<std::string, std::string>> DataBaseMySQL::list_all_User(st
     
     // Выполнение запроса
     if (mysql_query(&sql_mysql, request_mysql.c_str()) != 0) {
-        std::cerr << "Ошибка БД (MySQL) запроса выдачи всех пользователей: " << mysql_error(&sql_mysql) << std::endl;
+        get_logger() << "Ошибка БД (MySQL) запроса выдачи всех пользователей: " << mysql_error(&sql_mysql);
         throw "Ошибка БД (MySQL) запроса выдачи всех пользователей: " + std::string(mysql_error(&sql_mysql));
     }
 
@@ -265,7 +264,7 @@ std::vector<std::pair<std::string, std::string>> DataBaseMySQL::my_chat_P(std::s
 
     // Выполнение запроса
     if (mysql_query(&sql_mysql, request_mysql.c_str()) != 0) {
-        std::cerr << "Ошибка БД (MySQL) получения истории переписки my_chat_P: " << mysql_error(&sql_mysql) << std::endl;
+        get_logger() << "Ошибка БД (MySQL) получения истории переписки my_chat_P: " << mysql_error(&sql_mysql);
         return out;
     }
 
@@ -275,7 +274,7 @@ std::vector<std::pair<std::string, std::string>> DataBaseMySQL::my_chat_P(std::s
     if (!sql_res) { // Проверка на NULL результата
         if (mysql_errno(&sql_mysql)) {
             // Ошибка выполнения запроса
-            std::cerr << "Ошибка БД (MySQL) получения истории переписки my_chat_P (запрос пуст с ошибкой): " << mysql_error(&sql_mysql) << std::endl;
+            get_logger() << "Ошибка БД (MySQL) получения истории переписки my_chat_P (запрос пуст с ошибкой): " << mysql_error(&sql_mysql);
         }
         return out;
     }
@@ -285,7 +284,7 @@ std::vector<std::pair<std::string, std::string>> DataBaseMySQL::my_chat_P(std::s
     if (num_fields != 2) {
         mysql_free_result(sql_res);
         sql_res = nullptr;
-        std::cerr << "БД (MySQL) Ожидалось 2 поля в результате зполучения истории переписки my_chat_P" << std::endl;
+        get_logger() << "БД (MySQL) Ожидалось 2 поля в результате зполучения истории переписки my_chat_P";
         return out;
     }
 
@@ -311,7 +310,7 @@ bool DataBaseMySQL::write_Chat_P(std::shared_ptr<User> user_sender, std::shared_
 
     // Начало транзакции
     if (mysql_query(&sql_mysql, "START TRANSACTION")) {
-        std::cerr << "Ошибка начала транзакции write_Chat_P: " << mysql_error(&sql_mysql) << std::endl;
+        get_logger() << "Ошибка начала транзакции write_Chat_P: " << mysql_error(&sql_mysql);
         return false;
     }
 
@@ -385,7 +384,7 @@ bool DataBaseMySQL::write_Chat_P(std::shared_ptr<User> user_sender, std::shared_
         }
 
     } catch (const std::exception& e) {
-        std::cerr << "Ошибка write_Chat_P: " << e.what() << std::endl;
+        get_logger() << "Ошибка write_Chat_P: " << e.what();
         mysql_query(&sql_mysql, "ROLLBACK");
         transaction_ok = false;
     }
@@ -425,7 +424,7 @@ bool DataBaseMySQL::load_Chat_P(std::shared_ptr<User> user_sender, std::shared_p
             "ORDER BY m.created_at;";
 
     if (mysql_query(&sql_mysql, request_mysql.c_str())) {
-        std::cerr << "Ошибка поиска чата load_Chat_P: " << mysql_error(&sql_mysql) << std::endl;
+        get_logger() << "Ошибка поиска чата load_Chat_P: " << mysql_error(&sql_mysql);
         out.clear();
         return false;
         //throw std::runtime_error("Ошибка поиска чата load_Chat_P: " + std::string(mysql_error(&sql_mysql)));
@@ -437,7 +436,7 @@ bool DataBaseMySQL::load_Chat_P(std::shared_ptr<User> user_sender, std::shared_p
     if (!sql_res) { // Проверка на NULL результата
         if (mysql_errno(&sql_mysql)) {
             // Ошибка выполнения запроса
-            std::cerr << "Ошибка получения истории приватного чата БД (MySQL) load_Chat_P: " << mysql_error(&sql_mysql) << std::endl;
+            get_logger() << "Ошибка получения истории приватного чата БД (MySQL) load_Chat_P: " << mysql_error(&sql_mysql);
             return false;
         }
         // Нет результатов
@@ -450,7 +449,7 @@ bool DataBaseMySQL::load_Chat_P(std::shared_ptr<User> user_sender, std::shared_p
     if (num_fields != 2) {
         mysql_free_result(sql_res);
         sql_res = nullptr;
-        std::cerr << "БД (MySQL) Ожидалось 2 поля в результате запроса получения истории приватного чата" << std::endl;
+        get_logger() << "БД (MySQL) Ожидалось 2 поля в результате запроса получения истории приватного чата";
         return false;
     }
 
@@ -475,7 +474,7 @@ bool DataBaseMySQL::write_Chat_H(std::shared_ptr<User> user_sender, const std::s
     + escapeString(mess) + "');";
     // Выполнение запроса
     if (mysql_query(&sql_mysql, request_mysql.c_str()) != 0) {
-        std::cerr << "Ошибка записи БД (MySQL) общего чата в write_Chat_H: " << mysql_error(&sql_mysql) << std::endl;
+        get_logger() << "Ошибка записи БД (MySQL) общего чата в write_Chat_H: " << mysql_error(&sql_mysql);
         return false;
     }
     return true;
@@ -494,7 +493,7 @@ bool DataBaseMySQL::load_Chat_H(std::vector<std::vector<std::string>>& out) {
         "ORDER BY m.created_at;";
 
     if (mysql_query(&sql_mysql, request_mysql.c_str()) != 0) {
-        std::cerr << "Ошибка полученияистории общего чата БД (MySQL) load_Chat_H: " << mysql_error(&sql_mysql) << std::endl;
+        get_logger() << "Ошибка полученияистории общего чата БД (MySQL) load_Chat_H: " << mysql_error(&sql_mysql);
         return false;
     }
 
@@ -504,7 +503,7 @@ bool DataBaseMySQL::load_Chat_H(std::vector<std::vector<std::string>>& out) {
     if (!sql_res) { // Проверка на NULL результата
         if (mysql_errno(&sql_mysql)) {
             // Ошибка выполнения запроса
-            std::cerr << "Ошибка получения истории общего чата БД (MySQL) load_Chat_H: " << mysql_error(&sql_mysql) << std::endl;
+            get_logger() << "Ошибка получения истории общего чата БД (MySQL) load_Chat_H: " << mysql_error(&sql_mysql);
             return false;
         }
         // Нет результатов
@@ -517,7 +516,7 @@ bool DataBaseMySQL::load_Chat_H(std::vector<std::vector<std::string>>& out) {
     if (num_fields != 3) {
         mysql_free_result(sql_res);
         sql_res = nullptr;
-        std::cerr << "БД (MySQL) Ожидалось 3 поля в результате запроса получения истории общего чата" << std::endl;
+        get_logger() << "БД (MySQL) Ожидалось 3 поля в результате запроса получения истории общего чата";
         return false;
     }
 

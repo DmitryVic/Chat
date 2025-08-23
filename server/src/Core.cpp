@@ -10,6 +10,7 @@
 #include "dataUserOnline.h"
 #include <vector>
 #include <mutex>
+#include "Logger.h"
 
 
 void chat_start(std::shared_ptr<NetworkServer> network) {
@@ -60,7 +61,9 @@ void chat_start(std::shared_ptr<NetworkServer> network) {
                 }  
                 catch(const std::exception& e)
                 {
-                    std::cerr << e.what() << '\n';
+                    get_logger() << "Ошибка инициализации базы данных для пользователя: " << e.what();
+                    close(currentUser.client_socket);
+                    return;
                 }
 
                 while (true) {
@@ -75,7 +78,7 @@ void chat_start(std::shared_ptr<NetworkServer> network) {
                             throw  std::runtime_error("Ошибка в обработке данных, закрываю соединение...");
                         
                     } catch (const std::exception& e) {
-                        std::cerr << e.what();
+                        get_logger() <<  e.what();
                         currentUser.db.reset(); // Явное освобождение
                         break;
                     }
