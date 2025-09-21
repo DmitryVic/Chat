@@ -91,7 +91,7 @@ void interaction_chat::menu_chat() {
         switch (_status->getMenuChat()) {
             case MENU_CHAT::EXIT:
                 return;
-            case MENU_CHAT::VOID: {
+            case MENU_CHAT::MENU_VOID: {
                 _II->show_chat_menu(this->_status);
                 break;
             }
@@ -108,7 +108,7 @@ void interaction_chat::menu_chat() {
                 break;
             }
             default:
-                _status->setMenuChat(MENU_CHAT::VOID);
+                _status->setMenuChat(MENU_CHAT::MENU_VOID);
                 return;
             }
     }
@@ -146,7 +146,7 @@ void interaction_chat::chat_H(){
             std::shared_ptr<Message4> data = _II->show_chat_H(m51->history_chat_H, _status); //открвываем чат
             if ( data->mess == ""){//пользователь хочет выйти
                 _status->set_message_status(false);
-                _status->setMenuChat(MENU_CHAT::VOID);
+                _status->setMenuChat(MENU_CHAT::MENU_VOID);
                 return;
             }
             else // пользователь не выходит обновляем чат 
@@ -186,7 +186,7 @@ void interaction_chat::list_user(){
             std::pair<std::string, std::string> data = _II->show_list_users(m54->list_Users, _status);
 
             if ( data.first == "" || data.second == ""){//пользователь хочет выйти
-                _status->setMenuChat(MENU_CHAT::VOID);
+                _status->setMenuChat(MENU_CHAT::MENU_VOID);
                 _status->set_message_status(false);
                 return;
             }
@@ -230,7 +230,7 @@ void interaction_chat::list_chat_P(){
             std::pair<std::string, std::string> data = _II->show_list_chat_P(m53->list_chat_P, _status);
 
             if ( data.first == "" || data.second == ""){//пользователь хочет выйти
-                _status->setMenuChat(MENU_CHAT::VOID);
+                _status->setMenuChat(MENU_CHAT::MENU_VOID);
                 _status->set_message_status(false);
                 return;
             }
@@ -276,7 +276,7 @@ void interaction_chat::chat_P(){
             std::shared_ptr<Message3> data = _II->show_chat_P(m52->history_chat_P, fr_Us.first, fr_Us.second, _status);
 
             if ( data->mess == ""){//пользователь хочет выйти
-                _status->setMenuChat(MENU_CHAT::VOID);
+                _status->setMenuChat(MENU_CHAT::MENU_VOID);
                 _status->set_message_status(false);
                 return;
             }

@@ -1,14 +1,23 @@
 
-
+if(WIN32)
+    set(NETWORK_CLIENT_SRC src/NetworkClientWin.cpp)
+else()
+    set(NETWORK_CLIENT_SRC src/NetworkClientLinux.cpp)
+endif()
 
 add_executable(chat_client
     src/console_interface.cpp 
     src/interaction_chat.cpp   
     src/main.cpp
     src/MessageHandler.cpp
-    src/NetworkClient.cpp
+    ${NETWORK_CLIENT_SRC}
     src/UserStatus.cpp
 )
+
+# Для Windows-клиента
+if(WIN32)
+    target_link_libraries(chat_client PRIVATE ws2_32)
+endif()
 
 # Для Linux-клиента
 if(UNIX AND NOT APPLE)

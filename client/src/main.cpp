@@ -3,8 +3,16 @@
 #include <iostream>
 #include <unistd.h>
 #include <string.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
+#ifdef _WIN32
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+    #pragma comment(lib, "ws2_32.lib") // Подключаем библиотеку Winsock
+    typedef int socklen_t;
+#else
+    #include <unistd.h>
+    #include <sys/socket.h>
+    #include <arpa/inet.h>
+#endif
 #include <nlohmann/json.hpp>
 #include <string>
 #include <memory>

@@ -110,7 +110,7 @@ std::shared_ptr<Message4> console_interface::show_chat_H(const  std::vector<std:
         else
         {
             answer->mess = "";
-            status->setMenuChat(MENU_CHAT::VOID);
+            status->setMenuChat(MENU_CHAT::MENU_VOID);
         }
         return answer;
 }
@@ -203,7 +203,7 @@ std::pair<std::string, std::string> console_interface::show_list_chat_P(
         }
 
         if (userNamberInput == 0){
-            status->setMenuChat(MENU_CHAT::VOID);
+            status->setMenuChat(MENU_CHAT::MENU_VOID);
             return {};
         }
         else if (userNamberInput > list_Chat_P.size())
@@ -258,7 +258,7 @@ std::pair<std::string, std::string> console_interface::show_list_users(std::vect
         }
 
         if (userNamberInput == 0){
-            status->setMenuChat(MENU_CHAT::VOID);
+            status->setMenuChat(MENU_CHAT::MENU_VOID);
             return {{},{}};
         }
         else if (userNamberInput > list_Users.size())

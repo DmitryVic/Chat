@@ -34,7 +34,7 @@ bool HandlerMessage50::handle(const std::shared_ptr<Message>& message) {
     else
     {
     _status->setMenuAuthoriz(MENU_AUTHORIZATION::VOID_REG);
-    _status->setMenuChat(MENU_CHAT::VOID);
+    _status->setMenuChat(MENU_CHAT::MENU_VOID);
     _status->setLogin("");
     _status->setPass("");
     _status->setName("");
@@ -122,7 +122,7 @@ bool HandlerMessage55::handle(const std::shared_ptr<Message>& message) {
     }
     //обрабатываем
     _status->setMenuAuthoriz(MENU_AUTHORIZATION::VOID_REG);
-    _status->setMenuChat(MENU_CHAT::VOID);
+    _status->setMenuChat(MENU_CHAT::MENU_VOID);
     _status->setLogin("");
     _status->setPass("");
     _status->setName("");
@@ -151,7 +151,7 @@ bool HandlerMessage56::handle(const std::shared_ptr<Message>& message) {
 bool HandlerErr::handle(const std::shared_ptr<Message>& message) {
     //обрабатываем
     _status->setMenuAuthoriz(MENU_AUTHORIZATION::VOID_REG);
-    _status->setMenuChat(MENU_CHAT::VOID);
+    _status->setMenuChat(MENU_CHAT::MENU_VOID);
     _status->setLogin("");
     _status->setPass("");
     _status->setName("");
